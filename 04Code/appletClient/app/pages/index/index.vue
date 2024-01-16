@@ -68,7 +68,7 @@
             </view>
         </view>
         <!-- 底部导航条 -->
-        <bottom-navigation></bottom-navigation>
+        <bottom-navigation :index="1"></bottom-navigation>
     </view>
 </template>
 

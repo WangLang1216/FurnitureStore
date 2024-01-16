@@ -1,5 +1,5 @@
 <template>
-		<!-- 登录页面 -->
+    <!-- 登录页面 -->
     <view>
         <view class="login">
         </view>

@@ -2,7 +2,7 @@
     <!-- 分类页面 -->
     <view class="classification">
         <!-- 搜索框 -->
-        <search></search>
+        <search class="search"></search>
         <view class="imagesTop">
             <image mode="aspectFit" src="../../static/images/classification/top.jpg"></image>
         </view>
@@ -19,6 +19,7 @@
                 </view>
             </scroll-view>
         </view>
+        <view class="segmentation"></view>
         <!-- 分类 -->
         <view class="type">
             <view class="left">
@@ -38,7 +39,7 @@
             </view>
         </view>
         <!-- 底部导航条 -->
-        <bottom-navigation></bottom-navigation>
+        <bottom-navigation :index="2"></bottom-navigation>
     </view>
 </template>
 
@@ -100,19 +101,30 @@
 <style>
 	.classification {
 		width: 100%;
-		background: #f8f8f8;
+		/* background: #f8f8f8; */
+		background: deeppink;
+	}
+	.classification .search {
+		position: fixed;
+		z-index: 99;
+		top: 0;
 	}
 	.classification .imagesTop {
 		width: 100%;
+		position: fixed;
+		z-index: 99;
+		top: 7%;
 		background: white;
 	}
 	.classification>.imagesTop image {
 		width: 100%;
 		height: 120rpx;
-		margin-top: 15%;
 	}
 	.classification .nav {
 		width: 100%;
+		position: fixed;
+		top: 16%;
+		z-index: 99;
 		background: white;
 	}
 	.nav .scroll {
@@ -135,29 +147,38 @@
 	.nav .nav-item:nth-child(6) image, .nav .nav-item:last-child image {
 		height: 130rpx;
 	}
+	.classification .segmentation {
+		width: 100%;
+		height: 50rpx;
+		background: #f8f8f8;
+		position: fixed;
+		z-index: 98;
+		top: 28%;
+	}
 	.classification .type {
 		width: 100%;
-		margin-top: 4%;
-		display: flex;
+		position: absolute;
+		top: 30%;
 		background: #f8f8f8;
 	}
 	.type .left {
-		flex: 1;
+		position: fixed;
 		background: #f8f8f8;
 	}
 	.type .left text {
 		display: block;
-		width: 100%;
+		width: 186%;
 		height: 100rpx;
 		font-size: 35rpx;
 		font-weight: 700;
-		line-height: 90rpx;
+		line-height: 118rpx;
 		padding-left: 5%;
 		border-left: 8rpx solid #7e1e1f;
 		background: white;
 	}
 	.type .right {
-		flex: 4;
+		margin-left: 20%;
+		padding-bottom: 15%;
 		background: white;
 	}
 	.type .right .grid-item {
