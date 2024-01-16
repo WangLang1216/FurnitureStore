@@ -1,0 +1,61 @@
+{
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path" : "pages/index/index",
+			"style" :                                                                                    
+			{
+					"navigationBarTitleText": "首页",
+					"enablePullDownRefresh": true
+			}  
+	  },
+		{
+			"path" : "pages/user/login",
+			"style" :                                                                                    
+			{
+					"navigationBarTitleText": "物华天宝",
+					"enablePullDownRefresh": false
+			}	
+		},
+		{
+			"path" : "pages/user/other",
+			"style" :                                                                                    
+			{
+					"navigationBarTitleText": "物华天宝",
+					"enablePullDownRefresh": false
+			}	
+		}
+		,{
+				"path" : "pages/user/input",
+				"style" :                                                                                    
+				{
+						"navigationBarTitleText": "物华天宝",
+						"enablePullDownRefresh": false
+				}
+		}
+		,{
+				"path" : "pages/classification/classification",
+				"style" :                                                                                    
+				{
+						"navigationBarTitleText": "逛逛",
+						"enablePullDownRefresh": false
+				}
+		}
+    ],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	},
+	"uniIdRouter": {},
+	"condition" : { //模式配置，仅开发期间生效
+		"current": 0, //当前激活的模式(list 的索引项)
+		"list": [
+			{
+				"name": "", //模式名称
+				"path": "", //启动页面，必选
+				"query": "" //启动参数，在页面的onLoad函数里面得到
+			}
+		]
+	}
+}

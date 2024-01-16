@@ -1,0 +1,58 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    druid:
+      url: jdbc:mysql://127.0.0.1:3306/furniture_store?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&useSSL=false
+      username: root
+      password: 123456
+      driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    # Redis数据库索引（默认为0）
+    database: 0
+    password: 123456
+    timeout: 10s
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  global-config:
+    db-config:
+      id-type: auto
+  configuration:
+    # 是否开启自动驼峰命名规则映射:从数据库列名到Java属性驼峰命名的类似映射
+    map-underscore-to-camel-case: true
+    # 如果查询结果中包含空值的列，则 MyBatis 在映射的时候，不会映射这个字段
+    call-setters-on-nulls: true
+    # 这个配置会将执行的sql打印出来，在开发或测试的时候可以用
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+ignored:
+  urls: #安全路径白名单
+    - /swagger-ui.html
+    - /swagger-resources/**
+    - /swagger/**
+    - /**/v2/api-docs
+    - /**/*.js
+    - /**/*.css
+    - /**/*.png
+    - /**/*.ico
+    - /webjars/springfox-swagger-ui/**
+    - /actuator/**
+    - /druid/**
+    - /api/v1/register
+    - /api/v1/login-pwd
+    - /api/v1/login-code
+    - /api/v1/code
+
+jwt:
+  #JWT存储的请求头
+  tokenHeader: Authorization
+  #JWT加解密使用的密钥
+  sign: pengmq-secret
+  #jwtToken的默认有效时间 单位分钟
+  expireTime: 30
+  #JWT负载中拿到开头
+  tokenHead: 'Bearer '
+
+
