@@ -49,6 +49,15 @@
 				}
 				
 		}
+		,{
+				"path" : "pages/user/user",
+				"style" :                                                                                    
+				{
+						"navigationBarTitleText": "我的",
+						"enablePullDownRefresh": false
+				}
+				
+		}
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",

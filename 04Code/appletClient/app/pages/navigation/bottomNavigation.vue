@@ -62,6 +62,10 @@
                         url: '../shopping-trolley/shoppingTrolley',
                     });
                 } else {
+                    // 跳转用户页面
+                    uni.reLaunch({
+                        url: '../user/user',
+                    });
                 }
             },
         },
