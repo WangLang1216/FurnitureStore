@@ -206,7 +206,7 @@
 	.shoppingTrolley {
 		width: 100%;
 		padding-bottom: 35%;
-		background: #f1f1f1;
+		background: #f8f8f8;
 	}
 	.shoppingTrolley .notLogin {
 		width: 100%;
@@ -236,7 +236,7 @@
 	.shoppingTrolley .login {
 		width: 100%;
 		padding-bottom: 8%;
-		background: #f1f1f1;
+		background: #f8f8f8;
 		padding-top: 15%;
 	}
 	.login .top {

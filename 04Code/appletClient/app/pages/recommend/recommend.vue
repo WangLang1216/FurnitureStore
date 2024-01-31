@@ -46,55 +46,55 @@
 </script>
 
 <style>
-		.recommend {
-			width: 100%;
-			padding-left: 2%;
-			background: #f1f1f1;
-		}
-		.grid-item {
-			width: 45%;
-			background: white;
-			margin-left: 2%;
-			margin-top: 4%;
-			padding-bottom: 12%;
-			border-top-left-radius: 3%;
-			border-top-right-radius: 3%;
-		}
-		.grid-item-box image {
-			width: 90%;
-			border-top-left-radius: 3%;
-			border-top-right-radius: 3%;
-		}
-		.grid-item-box>view:nth-child(2) {
-			padding-right: 11%;
-			padding-top: 2%;
-			padding-left: 5%;
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			font-size: 30rpx;
-			font-weight: 400;
-			letter-spacing: 1px;
-		}
-		.grid-item-box>view:last-child {
-			display: flex;
-			padding-top: 3%;
-		}
-		.grid-item-box>view:last-child>view {
-			flex: 1;
-		}
-		.grid-item-box>view:last-child>view:first-child {
-			padding-left: 4%;
-			font-size: 26rpx;
-		}
-		.grid-item-box>view:last-child>view:first-child text {
-			font-size: 30rpx;
-			font-weight: 600;
-		}
-		.grid-item-box>view:last-child>view:last-child {
-			text-align: center;
-			padding-right: 5%;
-			font-size: 28rpx;
-			color: #808080;
-		}
+	.recommend {
+		width: 100%;
+		padding-left: 2%;
+		background: #f8f8f8;
+	}
+	.grid-item {
+		width: 45%;
+		background: white;
+		margin-left: 2%;
+		margin-top: 4%;
+		padding-bottom: 12%;
+		border-top-left-radius: 3%;
+		border-top-right-radius: 3%;
+	}
+	.grid-item-box image {
+		width: 90%;
+		border-top-left-radius: 3%;
+		border-top-right-radius: 3%;
+	}
+	.grid-item-box>view:nth-child(2) {
+		padding-right: 11%;
+		padding-top: 2%;
+		padding-left: 5%;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		font-size: 30rpx;
+		font-weight: 400;
+		letter-spacing: 1px;
+	}
+	.grid-item-box>view:last-child {
+		display: flex;
+		padding-top: 3%;
+	}
+	.grid-item-box>view:last-child>view {
+		flex: 1;
+	}
+	.grid-item-box>view:last-child>view:first-child {
+		padding-left: 4%;
+		font-size: 26rpx;
+	}
+	.grid-item-box>view:last-child>view:first-child text {
+		font-size: 30rpx;
+		font-weight: 600;
+	}
+	.grid-item-box>view:last-child>view:last-child {
+		text-align: center;
+		padding-right: 5%;
+		font-size: 28rpx;
+		color: #808080;
+	}
 </style>
