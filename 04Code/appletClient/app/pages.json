@@ -56,6 +56,14 @@
 						"navigationBarTitleText": "我的",
 						"enablePullDownRefresh": false
 				}
+		}
+		,{
+				"path" : "pages/product-details/productDetails",
+				"style" :                                                                                    
+				{
+						"navigationBarTitleText": "",
+						"enablePullDownRefresh": false
+				}
 				
 		}
     ],

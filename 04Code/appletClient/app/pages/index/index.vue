@@ -45,7 +45,7 @@
                 </view>
                 <uni-grid :column="2" :showBorder="false" :square="false">
                     <uni-grid-item v-for="(wares, key) in item.commodity" :key="key" :style="getStyle(key)" :index="key">
-                        <view class="info">
+                        <view class="info" @click="detail(wares.id)">
                             <view>
                                 <image :src="wares.image" mode="heightFix"></image>
                             </view>
@@ -75,20 +75,12 @@
 <script>
     import search from '../search/search.vue';
     import bottomNavigation from '../navigation/bottomNavigation.vue';
-    import uniSwiperDot from '../../uni_modules/uni-swiper-dot/components/uni-swiper-dot/uni-swiper-dot.vue';
-    import uniIcons from '../../uni_modules/uni-icons/components/uni-icons/uni-icons.vue';
-    import uniGrid from '../../uni_modules/uni-grid/components/uni-grid/uni-grid.vue';
-    import uniGridItem from '../../uni_modules/uni-grid/components/uni-grid-item/uni-grid-item.vue';
 
     export default {
 
         components: {
             search,
             bottomNavigation,
-            uniSwiperDot,
-            uniIcons,
-            uniGrid,
-            uniGridItem,
         },
 
         data() {
@@ -123,33 +115,33 @@
                     {
                         title: '松柏爆款沙发',
                         commodity: [
-                            { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
                         ],
                     },
                     {
                         title: '松柏爆推大床',
                         commodity: [
-                            { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
                         ],
                     },
                     {
                         title: '爆款餐桌椅',
                         commodity: [
-                            { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
                         ],
                     },
                 ],
@@ -157,6 +149,13 @@
         },
 
         methods: {
+            // 查看商品详情
+            detail(id) {
+                uni.navigateTo({
+                    url: '../product-details/productDetails',
+                });
+            },
+
             change(e) {
                 this.current = e.detail.current;
             },
@@ -177,5 +176,5 @@
 </script>
 
 <style>
-@import "./index.css";
+	@import "./index.css";
 </style>
