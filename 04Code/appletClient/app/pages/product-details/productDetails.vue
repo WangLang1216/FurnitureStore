@@ -338,6 +338,19 @@
                 selectPurchase: {
                     size: '', colour: '', materialType: '',
                 },
+                // 限制条件
+                limitations: [
+                    { colour: ['下单备注颜色'], materialType: ['改科技布'] },
+                    { colour: ['RX197-4'], materialType: ['绒布'] },
+                ],
+                limitationsColour: [
+                    { colour: '下单备注颜色', materialType: ['改科技布'] },
+                    { colour: 'RX197-4', materialType: ['绒布'] },
+                ],
+                limitationsMaterialType: [
+                    { materialType: '改科技布', colour: ['下单备注颜色'] },
+                    { materialType: '绒布', colour: ['RX197-4'] },
+                ],
                 // 评论
                 evaluate: [],
                 // 是否信息展开

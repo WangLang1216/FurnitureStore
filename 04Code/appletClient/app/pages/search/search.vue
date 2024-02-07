@@ -24,7 +24,7 @@
         methods: {
             toLogin() {
                 uni.navigateTo({
-                    url: '../user/login',
+                    url: '../search/search-page',
                 });
             },
         },
