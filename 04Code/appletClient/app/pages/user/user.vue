@@ -7,9 +7,9 @@
                 <uni-icons type="gear" size="38"></uni-icons>
             </view>
             <!-- 已登录时 -->
-            <view v-if="isLogin">
+            <view v-if="isLogin" @click="goUserInfo()">
                 <image src="../../static/images/default-avatar.png" mode="aspectFit"></image><br />
-                <text>点击登录</text>
+                <text>诗随远方</text>
             </view>
             <!-- 未登录时 -->
             <view v-else>
@@ -82,7 +82,7 @@
                     <uni-icons type="compose" size="40"></uni-icons>
                     <text>地址管理</text>
                 </view>
-                <view>
+                <view @click="testLogin()">
                     <uni-icons type="email" size="40"></uni-icons>
                     <text>留言反馈</text>
                 </view>
@@ -107,7 +107,7 @@
 
         data() {
             return {
-                isLogin: false,
+                isLogin: true,
                 textStyle: { lineHeight: '50rpx', fontWeight: '600' },
             };
         },
@@ -118,6 +118,19 @@
         },
 
         methods: {
+
+            // 跳转用户信息页面
+            goUserInfo() {
+                uni.navigateTo({
+                    url: '/pages/user/info',
+                });
+            },
+
+            testLogin() {
+                uni.reLaunch({
+                    url: '/pages/user/login',
+                });
+            },
 
         },
     };

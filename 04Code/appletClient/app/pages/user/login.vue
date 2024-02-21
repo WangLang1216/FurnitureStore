@@ -100,38 +100,42 @@
                     title: '温馨提示',
                     content: '授权微信登录后才能正常使用小程序功能',
                     success(res) {
-                        if (res.confirm) {
-                            uni.login({
-                                provider: 'weixin',
-                                success: (res) => {
-                                    console.log(res);
-                                    uni.request({
-                                        url: 'http://localhost:8080/api/v1/wx/code',
-                                        method: 'GET',
-                                        data: {
-                                            code: res.code,
-                                        },
-                                        // header: {
-                                        //     'Content-type': 'application/x-www-form-urlencoded',
-                                        // },
-                                        success: (resAppId) => {
-                                            console.log(resAppId);
-                                            uni.navigateTo({
-                                                url: 'input',
-                                            });
-                                        },
-                                    });
-                                    // // 获取用户信息
-                                    // uni.getUserProfile({
-                                    //     provider: 'weixin',
-                                    //     success: (infoRes) => {
-                                    //         console.log(`用户信息为：${infoRes.userInfo}`);
-                                    //         console.log(`用户昵称为：${infoRes.userInfo.nickName}`);
-                                    //     },
-                                    // });
-                                },
-                            });
-                        }
+                        // test
+                        uni.navigateTo({
+                            url: 'input',
+                        });
+                        // if (res.confirm) {
+                        //     uni.login({
+                        //         provider: 'weixin',
+                        //         success: (res) => {
+                        //             console.log(res);
+                        //             uni.request({
+                        //                 url: 'http://localhost:8080/api/v1/wx/code',
+                        //                 method: 'GET',
+                        //                 data: {
+                        //                     code: res.code,
+                        //                 },
+                        //                 // header: {
+                        //                 //     'Content-type': 'application/x-www-form-urlencoded',
+                        //                 // },
+                        //                 success: (resAppId) => {
+                        //                     console.log(resAppId);
+                        //                     uni.navigateTo({
+                        //                         url: 'input',
+                        //                     });
+                        //                 },
+                        //             });
+                        //             // // 获取用户信息
+                        //             // uni.getUserProfile({
+                        //             //     provider: 'weixin',
+                        //             //     success: (infoRes) => {
+                        //             //         console.log(`用户信息为：${infoRes.userInfo}`);
+                        //             //         console.log(`用户昵称为：${infoRes.userInfo.nickName}`);
+                        //             //     },
+                        //             // });
+                        //         },
+                        //     });
+                        // }
                     },
                 });
             },

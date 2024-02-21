@@ -1,8 +1,6 @@
 package com.summer.appletserver.service;
 
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.summer.appletserver.pojo.entity.Customer;
 import com.summer.appletserver.pojo.vo.CustomerVO;
 
 /**

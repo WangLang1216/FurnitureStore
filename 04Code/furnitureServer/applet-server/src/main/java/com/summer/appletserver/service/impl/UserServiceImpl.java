@@ -1,8 +1,5 @@
 package com.summer.appletserver.service.impl;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.summer.appletserver.mapper.CustomerMapper;
-import com.summer.appletserver.pojo.entity.Customer;
 import com.summer.appletserver.pojo.vo.CustomerVO;
 import com.summer.appletserver.service.UserService;
 import org.slf4j.Logger;

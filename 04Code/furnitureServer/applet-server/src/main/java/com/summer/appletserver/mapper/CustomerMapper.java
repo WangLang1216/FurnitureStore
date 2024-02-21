@@ -1,7 +1,5 @@
 package com.summer.appletserver.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.summer.appletserver.pojo.entity.Customer;
 import org.springframework.stereotype.Component;
 
 @Component("customerMapper")

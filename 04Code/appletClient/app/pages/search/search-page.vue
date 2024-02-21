@@ -19,10 +19,10 @@
         <view v-show="searchContent === ''" class="find">
             <view>
                 <text>发现</text>
-                <uni-icons type="eye" size="26"></uni-icons>
+                <uni-icons :type="findState ? 'eye-slash' : 'eye'" size="26" @click="findState = !findState"></uni-icons>
             </view>
             <view>
-                <text v-for="(item, index) in discoveryContent" :key="index">{{ item }}</text>
+                <text v-for="(item, index) in (findState ? discoveryContent : [])" :key="index">{{ item }}</text>
             </view>
         </view>
         <!-- 热搜榜 -->
@@ -92,6 +92,8 @@
                     '头层牛皮沙发脚机音响+蓝牙+USB端口仿真皮沙发客厅简约现代沙发直排沙发',
                     '头层牛皮沙发真皮转角沙发客厅简约现代小户型',
                 ],
+                // 是否显示发现栏
+                findState: true,
                 styles: {
                     borderColor: '#f8f8f8',
                 },
@@ -109,6 +111,9 @@
             enterSearch() {
                 if (this.searchContent !== '') {
                     console.log(this.searchContent);
+                    uni.navigateTo({
+                        url: `/pages/search/search-index?searchContent=${this.searchContent}`,
+                    });
                 }
             },
         },
