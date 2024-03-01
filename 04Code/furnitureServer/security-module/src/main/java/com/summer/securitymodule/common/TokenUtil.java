@@ -1,0 +1,101 @@
+package com.summer.securitymodule.common;
+
+import cn.hutool.core.codec.Base64;
+import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.crypto.CryptoException;
+import cn.hutool.crypto.asymmetric.AsymmetricAlgorithm;
+import cn.hutool.crypto.asymmetric.RSA;
+import com.summer.commonmodule.exception.RecordLoggerThrowException;
+import com.summer.commonmodule.response.ResponseEnum;
+import com.summer.commonmodule.utils.RedisUtil;
+import com.summer.securitymodule.entity.bo.TokenBO;
+import com.summer.securitymodule.entity.bo.TokenInfoBO;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+/**
+ * Token创建-校验
+ * @author WangLang
+ */
+@Component
+public class TokenUtil {
+
+    @Autowired
+    private RedisUtil redisUtil;
+
+    @Autowired
+    private EncryptionUtil encryptionUtil;
+
+    private static final Integer ACCESS_EXPIRES_IN = 60;
+    private static final Integer REFRESH_EXPIRES_IN = 300;
+
+    private static final Logger logger = LoggerFactory.getLogger(TokenUtil.class);
+
+    /**
+     * 创建Token
+     * @param tokenType token类型
+     * @return TokenBO
+     */
+    public TokenBO createToken(Boolean tokenType) {
+        TokenBO tokenBO = new TokenBO();
+
+        // 创建accessToken和refreshToken
+        String token = IdUtil.simpleUUID();
+
+        // 根据tokenType判断是accessToken还是refreshToken，时间不同，true为accessToken时间，false为refreshToken时间
+        int expiresTime = Boolean.TRUE.equals(tokenType) ? ACCESS_EXPIRES_IN : REFRESH_EXPIRES_IN;
+
+        tokenBO.setToken(token)
+                .setExpiresIn(expiresTime);
+
+        return tokenBO;
+    }
+
+    /**
+     * 校验Token
+     * @param token 令牌
+     * @return Boolean
+     */
+    public Boolean verifyToken(String token) {
+        if (CharSequenceUtil.isBlank(token)) {
+            RecordLoggerThrowException.record(ResponseEnum.HTTP_MESSAGE_NOT_READABLE, logger);
+        }
+
+        // 解密Token
+        String decodeToken;
+        try {
+            decodeToken = encryptionUtil.publicKeyDecryption(token);
+        } catch (CryptoException e) {
+            // 解码失败则表示服务重启，清空Redis
+            redisUtil.clearAllKeys();
+            return Boolean.FALSE;
+        }
+
+        // 查询Redis中是否存在该key
+        return redisUtil.hasKey(decodeToken);
+    }
+
+    /**
+     * 获取Token中的信息
+     * @param token 令牌
+     * @return TokenInfoBO
+     */
+    public TokenInfoBO getTokenInfo(String token) {
+        boolean verifyToken = verifyToken(token);
+
+        if (!verifyToken) {
+            RecordLoggerThrowException.record(ResponseEnum.UNAUTHORIZED, logger);
+        }
+
+        // 解密Token
+        String decodeToken = encryptionUtil.publicKeyDecryption(token);
+
+        return (TokenInfoBO) redisUtil.get(decodeToken);
+    }
+
+
+}

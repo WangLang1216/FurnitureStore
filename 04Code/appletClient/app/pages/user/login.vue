@@ -22,16 +22,18 @@
 </template>
 
 <script>
+    import { loginByWeChat } from '@/api/index.js';
+
     export default {
         components: {
         },
 
         data() {
             return {
-                isLogin: true,
-                isRegister: false,
-                styleSelected: { background: '#1aad19', fontWeight: 600 },
-                styleNotSelected: { background: '#007aff', fontWeight: 500 },
+                // isLogin: true,
+                // isRegister: false,
+                // styleSelected: { background: '#1aad19', fontWeight: 600 },
+                // styleNotSelected: { background: '#007aff', fontWeight: 500 },
                 // obtainText: '获取验证码',
                 // phone: '',
                 // voucher: '',
@@ -63,28 +65,28 @@
                 console.log(`当前模式：${e.type},状态：${e.show}`);
             },
 
-            getUserProfile() {
-                uni.getUserProfile({
-                    lang: 'zh_CN',
-                    desc: '用户获取您的个人信息',
-                    success: (res) => {
-                        console.log(res.userInfo);
-                        if (res.userInfo) {
+            // getUserProfile() {
+            //     uni.getUserProfile({
+            //         lang: 'zh_CN',
+            //         desc: '用户获取您的个人信息',
+            //         success: (res) => {
+            //             console.log(res.userInfo);
+            //             if (res.userInfo) {
 
-                        } else {
+            //             } else {
 
-                        }
-                    },
-                    fail: (err) => {
-                        console.log(err);
-                        uni.showToast({
-                            title: '您已拒绝登录',
-                            icon: 'none',
-                            duration: 2000,
-                        });
-                    },
-                });
-            },
+            //             }
+            //         },
+            //         fail: (err) => {
+            //             console.log(err);
+            //             uni.showToast({
+            //                 title: '您已拒绝登录',
+            //                 icon: 'none',
+            //                 duration: 2000,
+            //             });
+            //         },
+            //     });
+            // },
 
             // // 微信头像
             // onChooseAvatar(e) {
@@ -100,42 +102,38 @@
                     title: '温馨提示',
                     content: '授权微信登录后才能正常使用小程序功能',
                     success(res) {
-                        // test
-                        uni.navigateTo({
-                            url: 'input',
-                        });
-                        // if (res.confirm) {
-                        //     uni.login({
-                        //         provider: 'weixin',
-                        //         success: (res) => {
-                        //             console.log(res);
-                        //             uni.request({
-                        //                 url: 'http://localhost:8080/api/v1/wx/code',
-                        //                 method: 'GET',
-                        //                 data: {
-                        //                     code: res.code,
-                        //                 },
-                        //                 // header: {
-                        //                 //     'Content-type': 'application/x-www-form-urlencoded',
-                        //                 // },
-                        //                 success: (resAppId) => {
-                        //                     console.log(resAppId);
-                        //                     uni.navigateTo({
-                        //                         url: 'input',
-                        //                     });
-                        //                 },
-                        //             });
-                        //             // // 获取用户信息
-                        //             // uni.getUserProfile({
-                        //             //     provider: 'weixin',
-                        //             //     success: (infoRes) => {
-                        //             //         console.log(`用户信息为：${infoRes.userInfo}`);
-                        //             //         console.log(`用户昵称为：${infoRes.userInfo.nickName}`);
-                        //             //     },
-                        //             // });
-                        //         },
-                        //     });
-                        // }
+                        if (res.confirm) {
+                            uni.login({
+                                provider: 'weixin',
+                                success: (resLogin) => {
+                                    loginByWeChat(resLogin.code).then((tokenInfo) => {
+                                        // 存储Token信息
+                                        uni.setStorageSync('accessToken', tokenInfo.data.accessToken);
+                                        uni.setStorageSync('refreshToken', tokenInfo.data.refreshToken);
+                                        // 跳转页面
+                                        uni.navigateTo({
+                                            url: 'input',
+                                        });
+                                    });
+                                    // uni.request({
+                                    //     url: 'http://localhost:8081/api/v1/ua/wx/login',
+                                    //     method: 'POST',
+                                    //     data: {
+                                    //         code: resLogin.code,
+                                    //     },
+                                    //     // header: {
+                                    //     //     'Content-type': 'application/x-www-form-urlencoded',
+                                    //     // },
+                                    //     success: (resAppId) => {
+                                    //         console.log(resAppId);
+                                    //         // uni.navigateTo({
+                                    //         //     url: 'input',
+                                    //         // });
+                                    //     },
+                                    // });
+                                },
+                            });
+                        }
                     },
                 });
             },

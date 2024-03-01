@@ -1,12 +1,13 @@
 server:
-  port: 8080
+  port: 8081
 spring:
-  datasource:
-    druid:
-      url: jdbc:mysql://127.0.0.1:3306/furniture_store?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&useSSL=false
-      username: root
-      password: 123456
-      driver-class-name: com.mysql.cj.jdbc.Driver
+  application:
+    name: applet-server
+  data:
+    mongodb:
+      host: 127.0.0.1
+      port: 27017
+      database: furniture_store
   redis:
     host: 127.0.0.1
     port: 6379
@@ -14,45 +15,31 @@ spring:
     database: 0
     password: 123456
     timeout: 10s
-mybatis-plus:
-  mapper-locations: classpath*:mapper/**/*Mapper.xml
-  global-config:
-    db-config:
-      id-type: auto
-  configuration:
-    # 是否开启自动驼峰命名规则映射:从数据库列名到Java属性驼峰命名的类似映射
-    map-underscore-to-camel-case: true
-    # 如果查询结果中包含空值的列，则 MyBatis 在映射的时候，不会映射这个字段
-    call-setters-on-nulls: true
-    # 这个配置会将执行的sql打印出来，在开发或测试的时候可以用
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
-ignored:
-  urls: #安全路径白名单
-    - /swagger-ui.html
-    - /swagger-resources/**
-    - /swagger/**
-    - /**/v2/api-docs
-    - /**/*.js
-    - /**/*.css
-    - /**/*.png
-    - /**/*.ico
-    - /webjars/springfox-swagger-ui/**
-    - /actuator/**
-    - /druid/**
-    - /api/v1/register
-    - /api/v1/login-pwd
-    - /api/v1/login-code
-    - /api/v1/code
+#jwt:
+#  #JWT存储的请求头
+#  tokenHeader: Authorization
+#  #JWT加解密使用的密钥
+#  sign: pengmq-secret
+#  #jwtToken的默认有效时间 单位分钟
+#  expireTime: 30
+#  #JWT负载中拿到开头
+#  tokenHead: 'Bearer '
 
-jwt:
-  #JWT存储的请求头
-  tokenHeader: Authorization
-  #JWT加解密使用的密钥
-  sign: pengmq-secret
-  #jwtToken的默认有效时间 单位分钟
-  expireTime: 30
-  #JWT负载中拿到开头
-  tokenHead: 'Bearer '
+# 公钥和私钥
+encrypt:
+  privateKey: MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAJlO0vJ4KAAxrbZUBV9hc+H9NniaZf2Sezekjiu3O5+qaTbUHt2n5iMX3hiOh1tKk6exkJaDAzm6rb2FZOb+sGjsadakY+aS2bHwPtehVzt9OShDlUVY5sZR2wy82+HIhZyucTmGdFVuLU68fB6mipBV6Jf520Mzhr9DgJUwqxj1AgMBAAECgYA4WkscKaK6f4hVDwlyiAXqugL9zfNThDaau3gvBYl7JU7Lgqld3MuxdqKC8FE882rXJ2P4j2vuGnqmwZPXfSMmuokbOdpOm7jb3TFpXgngkmb4Kv8Pj/2bx5UHj/ULpU7d9//pvvViJIFmHNKhYfcXMxV2m4/Zh5HBMUzA7Re2gQJBAOsN5+k6GKEhklkmtJj7wrhIfDBKK+NA7YwaB8iRnCOkY0wdVmo5vaTX5MBecxaNw1/mFMf6xlJYxqC/TIGbhZECQQCm+BtVENkJziWE+P6LxsvN5I0xtysRUXjn69VQe19FreeBgg2Ag0TFXTUf652dHgH3Nteadg8srhnt0stlMpslAkAMjKqEFjj4aV1x6xIbVN25jw0qWttq/61vHHir6bJHaOBwUOSrOTf51Bj/eEt2uczjktorLyVlgh3guTXxeYcxAkBH/ZfDULVTvfd9YuJVoAxFpPKf6er+15L65DsgLWGBqJ61vz5VF8QyGKMMNUnK8aJFVfcWGSsnx5VUblvWMUClAkEAwcZAJZXmHPVYVy8QS9gav62iheDOB8Om+ri4T6KtWbDvWIPl7wWlIcU8R4IO8/P8ct3IQdOLVAinp9e1qY01kg==
+  publicKey: MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCZTtLyeCgAMa22VAVfYXPh/TZ4mmX9kns3pI4rtzufqmk21B7dp+YjF94YjodbSpOnsZCWgwM5uq29hWTm/rBo7GnWpGPmktmx8D7XoVc7fTkoQ5VFWObGUdsMvNvhyIWcrnE5hnRVbi1OvHwepoqQVeiX+dtDM4a/Q4CVMKsY9QIDAQAB
+
+# 密码加密
+encoder:
+  crypt:
+    secret: ${random.uuid}
+    strength: 6
+
+# 微信密钥
+weChat:
+  appId: "wxc491e906e319a6f0"
+  secret: "92d1f82dab9b1e4889aee0a82ce0759e"
 
 

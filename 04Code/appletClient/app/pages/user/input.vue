@@ -41,6 +41,34 @@
 
             // 进入小程序
             toIndex() {
+                uni.uploadFile({
+                    url: 'http://localhost:8081/api/v1/ua/user',
+                    filePath: this.picture,
+                    name: 'picture',
+                    formData: {
+                        nickname: this.nickName,
+                    },
+                });
+                // 请求后台
+                // uni.request({
+                //     url: 'http://localhost:8081/api/v1/ua/user',
+                //     method: 'POST',
+                //     data: {
+                //         nickname: this.nickName,
+                //         picture: this.picture,
+                //     },
+                //     header: {
+                //         'Content-type': 'application/x-www-form-urlencoded',
+                //     },
+                //     success: (resAppId) => {
+                //         console.log(resAppId);
+                //         uni.navigateTo({
+                //             url: 'input',
+                //         });
+                //     },
+                // });
+
+
                 uni.reLaunch({
                     url: '/pages/index/index',
                 });

@@ -1,43 +1,33 @@
 package com.summer.appletserver.service;
 
-
-import com.summer.appletserver.pojo.vo.CustomerVO;
+import com.summer.appletserver.entity.vo.UserInfoVO;
+import com.summer.securitymodule.entity.vo.PhoneCodeVO;
 
 /**
- * 用户类接口
+ * 用户信息
+ * @author WangLang
  */
-public interface UserService extends IService<Customer> {
+public interface UserService {
 
     /**
-     * 账号注册
-     * @param phone
-     * @param password
-     * @param code
-     * @return
+     *  保存用户信息
+     * @param token 令牌
+     * @param userInfoVO 用户信息
      */
-    Boolean register(String phone,  String password, String code);
+    void saveUserInfo(String token, UserInfoVO userInfoVO);
 
     /**
-     * 密码登录
-     * @param phone
-     * @param password
-     * @return Token
+     * 更改用户手机号信息
+     * @param token 令牌
+     * @param phoneCodeVO 手机号验证码信息
      */
-    String loginByPassword(String phone, String password);
+    void saveUserPhone(String token, PhoneCodeVO phoneCodeVO);
 
     /**
-     * 验证码登录
-     * @param phone
-     * @param code
-     * @return Token
+     * 用户绑定微信
+     * @param token 令牌
+     * @param code 微信凭证
      */
-    String loginByCode(String phone, String code);
-
-    /**
-     * 获取用户信息
-     * @param token
-     * @return CustomerVO
-     */
-    CustomerVO getUserInfo(String token);
+    void bindUserWeChat(String token, String code);
 
 }

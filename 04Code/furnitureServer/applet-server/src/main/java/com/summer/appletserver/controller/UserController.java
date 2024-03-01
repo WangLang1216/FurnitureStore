@@ -1,105 +1,80 @@
 package com.summer.appletserver.controller;
 
-import com.summer.appletserver.common.response.ResponseEntity;
-import com.summer.appletserver.pojo.vo.CustomerVO;
+import com.summer.appletserver.entity.vo.UserInfoVO;
 import com.summer.appletserver.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import com.summer.commonmodule.response.ResponseEntity;
+import com.summer.securitymodule.entity.vo.PhoneCodeVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
-@Api("用户信息接口")
-@CrossOrigin
+/**
+ * 用户信息
+ * @author WangLang
+ */
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/ua/user")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
     /**
-     * 账号注册
-     * @param phone
-     * @param password
-     * @param code
-     * @return Boolean
+     * 保存用户信息
+     * @param request 请求
+     * @param nickname 昵称
+     * @param picture 头像
      */
-    @PostMapping("/register")
-    @ApiOperation(value = "账号注册")
-    public ResponseEntity<Void> register(@RequestParam String phone, @RequestParam String password, @RequestParam String code) {
-        boolean result = userService.register(phone, password, code);
-        return result ? ResponseEntity.success() : ResponseEntity.showFailMsg("账号注册失败");
+    @PostMapping()
+    public ResponseEntity<Void> saveUserInfo(HttpServletRequest request, @RequestParam("nickname") String nickname,
+                                             @RequestParam("picture") MultipartFile picture) {
+        String token = request.getHeader("Authorization");
+        UserInfoVO userInfoVO = new UserInfoVO();
+        userInfoVO.setNickname(nickname)
+                .setPicture(picture);
+
+        userService.saveUserInfo(token, userInfoVO);
+
+        // TODO 测试
+//        String fileName = picture.getOriginalFilename();
+//        java.io.File dest = new java.io.File("C:\\Users\\WangLang\\Desktop\\新建文件夹" + "/" + fileName);
+//        try (java.io.OutputStream outputStream = new java.io.FileOutputStream(dest)){
+//            byte[] bytes = picture.getBytes();
+//            outputStream.write(bytes);
+//        } catch (Exception e){
+//            throw new RuntimeException("文件保存失败", e);
+//        }
+
+
+        return ResponseEntity.success();
     }
 
     /**
-     * 密码登录
-     * @param phone
-     * @param password
-     * @return Token
+     * 更改用户手机号信息
+     * @param request 请求
+     * @param phoneCodeVO 手机号验证码信息
      */
-    @PostMapping("/login-pwd")
-    @ApiOperation(value = "密码登录")
-    public ResponseEntity<String> loginByPassword(@RequestParam String phone, @RequestParam String password) {
-        return null;
+    @PutMapping("/phone")
+    public ResponseEntity<Void> saveUserPhone(HttpServletRequest request, PhoneCodeVO phoneCodeVO) {
+        String token = request.getHeader("Authorization");
+        userService.saveUserPhone(token, phoneCodeVO);
+
+        return ResponseEntity.success();
     }
 
     /**
-     * 验证码登录
-     * @param phone
-     * @param code
-     * @return Token
+     * 用户绑定微信
+     * @param request 请求
+     * @param code 微信凭证
      */
-    @PostMapping("/login-code")
-    @ApiOperation(value = "验证码登录")
-    public ResponseEntity<String> loginByCode(@RequestParam String phone, @RequestParam String code) {
-        return null;
+    @PutMapping("/bind-wx")
+    public ResponseEntity<Void> bindUserWeChat(HttpServletRequest request, String code) {
+        String token = request.getHeader("Authorization");
+        userService.bindUserWeChat(token, code);
+
+        return ResponseEntity.success();
     }
 
-    /**
-     * 获取用户信息
-     * @param request
-     * @return 顾客表
-     */
-    @GetMapping("/users")
-    @ApiOperation(value = "获取账号信息")
-    public ResponseEntity<CustomerVO> getUserInfo(HttpServletRequest request) {
-        return null;
-    }
-
-    /**
-     * 更新用户信息
-     * @param customerVO
-     * @return 顾客表
-     */
-    @PutMapping("/users")
-    @ApiOperation(value = "更改账号信息")
-    public ResponseEntity<CustomerVO> updateUserInfo(@RequestBody CustomerVO customerVO) {
-        return null;
-    }
-
-    /**
-     * 更新用户头像
-     * @param picture
-     * @return 图片浏览地址
-     */
-    @PatchMapping("/picture")
-    @ApiOperation(value = "更新头像")
-    public ResponseEntity<String> updatePicture(@RequestParam MultipartFile picture) {
-        return null;
-    }
-
-    /**
-     * 发送短信验证码
-     * @param phone
-     * @return Boolean
-     */
-    @GetMapping("/code")
-    @ApiOperation(value = "发送验证码")
-    public ResponseEntity<Boolean> verification(@RequestParam String phone) {
-        System.out.println("电话为：" + phone);
-        return ResponseEntity.success(true);
-    }
 }

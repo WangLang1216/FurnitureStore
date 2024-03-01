@@ -1,62 +1,135 @@
 package com.summer.appletserver.service.impl;
 
-import com.summer.appletserver.pojo.vo.CustomerVO;
+import com.summer.appletserver.entity.vo.UserInfoVO;
 import com.summer.appletserver.service.UserService;
+import com.summer.commonmodule.entity.model.Customer;
+import com.summer.commonmodule.exception.RecordLoggerThrowException;
+import com.summer.commonmodule.mapper.CustomerMapper;
+import com.summer.commonmodule.response.ResponseEnum;
+import com.summer.commonmodule.service.PhoneCodeService;
+import com.summer.commonmodule.utils.RedisUtil;
+import com.summer.securitymodule.common.EncryptionUtil;
+import com.summer.securitymodule.common.WeChatUtil;
+import com.summer.securitymodule.entity.bo.TokenInfoBO;
+import com.summer.securitymodule.entity.vo.PhoneCodeVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
-public class UserServiceImpl extends ServiceImpl<CustomerMapper, Customer> implements UserService {
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Objects;
 
-    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+/**
+ * 用户信息
+ * @author WangLang
+ */
+@Service
+public class UserServiceImpl implements UserService {
 
     @Autowired
     private CustomerMapper customerMapper;
 
-    public String code(String phone) {
-        System.out.println(phone);
-        return "1234";
-    }
+    @Autowired
+    private PhoneCodeService phoneCodeService;
+
+    @Autowired
+    private RedisUtil redisUtil;
+
+    @Autowired
+    private EncryptionUtil encryptionUtil;
+
+    @Autowired
+    private WeChatUtil weChatUtil;
+
+    /**
+     * 头像图片使用base64位
+     */
+    private static final String BASE64 = "data:image/png;base64,";
+
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Override
-    public Boolean register(String phone, String password, String code) {
-        logger.info("phone：" + phone + "，password：" + password + "，code：" + code);
-        if ("".equals(phone) || "".equals(password) || "".equals(code)) {
-            logger.error("参数为空");
-            return false;
+    public void saveUserInfo(String token, UserInfoVO userInfoVO) {
+        if (Objects.isNull(userInfoVO)) {
+            RecordLoggerThrowException.record(ResponseEnum.HTTP_MESSAGE_NOT_READABLE, logger);
         }
-        if (!"1234".equals(code)) {
-            logger.error("验证码错误：" + code);
-            return false;
+
+        // 将图片转化为二进制内容
+        byte[] bytes = {};
+        try {
+            bytes = Files.readAllBytes(Paths.get(Objects.requireNonNull(userInfoVO.getPicture().getOriginalFilename())));
+        } catch (IOException e) {
+            RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, e.getMessage(),logger);
         }
 
-        Customer customer = new Customer();
-        System.out.println(customer);
-        customer.setPhone(phone).setPassword(password);
-        int r = customerMapper.insert(customer);
-        if (r == 0) {
-            logger.info("账号：" + phone + "注册失败");
-            return false;
+        // 获取Token中的数据
+        TokenInfoBO tokenInfoBO = (TokenInfoBO) redisUtil.get(encryptionUtil.publicKeyDecryption(token));
+
+        // 从数据库中查询用户信息
+        Customer customer = customerMapper.queryCustomerById(tokenInfoBO.getUserInfoTokenBO().getUserId());
+        if (Objects.isNull(customer)) {
+            RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, logger);
         }
-        logger.info("账号：" + phone + "注册成功");
-        return true;
+
+        customer.setNickname(userInfoVO.getNickname())
+                .setPicture(BASE64 + Arrays.toString(bytes));
+        // 保存用户信息
+        Customer saveCustomer = customerMapper.saveCustomer(customer);
+        if (Objects.isNull(saveCustomer)) {
+            RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, logger);
+        }
+
     }
 
     @Override
-    public String loginByPassword(String phone, String password) {
+    public void saveUserPhone(String token, PhoneCodeVO phoneCodeVO) {
+        if (Objects.isNull(phoneCodeVO)) {
+            RecordLoggerThrowException.record(ResponseEnum.HTTP_MESSAGE_NOT_READABLE, logger);
+        }
 
-        return null;
+        // 校验验证码
+        phoneCodeService.checkCode(phoneCodeVO.getPhone(), phoneCodeVO.getCode());
+
+        // 获取Token中的数据
+        TokenInfoBO tokenInfoBO = (TokenInfoBO) redisUtil.get(encryptionUtil.publicKeyDecryption(token));
+
+        // 查询顾客信息
+        Customer customer = customerMapper.queryCustomerById(tokenInfoBO.getUserInfoTokenBO().getUserId());
+        if (Objects.isNull(customer)) {
+            RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, logger);
+        }
+        // 保存用户信息
+        customer.setPhone(phoneCodeVO.getPhone());
+        Customer saveCustomer = customerMapper.saveCustomer(customer);
+        if (Objects.isNull(saveCustomer)) {
+            RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, logger);
+        }
+
     }
 
     @Override
-    public String loginByCode(String phone, String code) {
-        return null;
-    }
+    public void bindUserWeChat(String token, String code) {
+        // 获取微信OpenId
+        String openId = weChatUtil.getWxOpenId(code);
 
-    @Override
-    public CustomerVO getUserInfo(String token) {
-        return null;
+        // 获取Token中的数据
+        TokenInfoBO tokenInfoBO = (TokenInfoBO) redisUtil.get(encryptionUtil.publicKeyDecryption(token));
+
+        // 查询顾客信息
+        Customer customer = customerMapper.queryCustomerById(tokenInfoBO.getUserInfoTokenBO().getUserId());
+        if (Objects.isNull(customer)) {
+            RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, logger);
+        }
+        // 保存用户信息
+        customer.setOpenId(openId);
+        Customer saveCustomer = customerMapper.saveCustomer(customer);
+        if (Objects.isNull(saveCustomer)) {
+            RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, logger);
+        }
+
     }
 }
