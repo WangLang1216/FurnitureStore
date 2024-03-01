@@ -13,7 +13,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
- * 账号登录-登出
+ * 账号登录-登出-短信
  * @author WangLang
  */
 @RestController
@@ -28,8 +28,8 @@ public class LoginController {
      * @param code 用户唯一码
      * @return Token信息
      */
-    @PostMapping("/ua/wx/login")
-    public ResponseEntity<TokenInfoVO> login(@RequestBody @NotBlank String code) {
+    @GetMapping("/ua/wx/login")
+    public ResponseEntity<TokenInfoVO> login(@RequestParam @NotBlank String code) {
         TokenInfoVO tokenInfoVO = accountService.login(code);
 
         return ResponseEntity.success(tokenInfoVO);
@@ -42,9 +42,9 @@ public class LoginController {
      */
     @PostMapping("/ua/web/login")
     public ResponseEntity<TokenInfoVO> login(@NotNull AccountVO accountVO) {
+        TokenInfoVO tokenInfoVO = accountService.login(accountVO);
 
-
-        return null;
+        return ResponseEntity.success(tokenInfoVO);
     }
 
     /**
@@ -57,6 +57,17 @@ public class LoginController {
         TokenInfoVO tokenInfoVO = accountService.login(phoneCodeVO);
 
         return ResponseEntity.success(tokenInfoVO);
+    }
+
+    /**
+     * 发送短信验证码
+     * @param phone 手机号
+     */
+    @GetMapping("/ua/sms")
+    public ResponseEntity<Void> sendSmsCode(@RequestParam @NotBlank String phone) {
+        accountService.sendSmsCode(phone);
+
+        return ResponseEntity.success();
     }
 
     /**

@@ -5,53 +5,20 @@
         </view>
         <view class="loginButton uni-column uni-flex">
             <button type="primary" lang="zh_CN" @click="login()">一键快捷登录</button>
-            <!-- open-type="chooseAvatar" @chooseavatar="onChooseAvatar" -->
             <button type="default" @click="toOther">手机验证码登录</button>
         </view>
-
-        <!-- 输入框示例 -->
-        <!--
-            <uni-popup ref="inputDialog" class="dialog" type="dialog">
-            <uni-popup-dialog
-            ref="inputClose" mode="input" title="昵称" :value="value"
-            placeholder="请输入内容" @confirm="dialogInputConfirm"
-            ></uni-popup-dialog>
-            </uni-popup>
-        -->
     </view>
 </template>
 
 <script>
-    import { loginByWeChat } from '@/api/index.js';
+    import { loginByWeChat } from '@/api/user.js';
 
     export default {
-        components: {
-        },
-
         data() {
             return {
-                // isLogin: true,
-                // isRegister: false,
-                // styleSelected: { background: '#1aad19', fontWeight: 600 },
-                // styleNotSelected: { background: '#007aff', fontWeight: 500 },
-                // obtainText: '获取验证码',
-                // phone: '',
-                // voucher: '',
-                // openid: null,
-                // unionid: null,
-                // session_key: null,
-                // value: '',
-                // // userInfo: {
-                // //     nickName: null,
-                // //     portrait: null,
-                // // },
-                // avatarUrl: 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0',
+
             };
         },
-
-        // onLoad() {
-        //     this.getUserVoucher();
-        // },
 
         methods: {
             // // 前往 其他 页面进行登录
@@ -64,35 +31,6 @@
             onchange(e) {
                 console.log(`当前模式：${e.type},状态：${e.show}`);
             },
-
-            // getUserProfile() {
-            //     uni.getUserProfile({
-            //         lang: 'zh_CN',
-            //         desc: '用户获取您的个人信息',
-            //         success: (res) => {
-            //             console.log(res.userInfo);
-            //             if (res.userInfo) {
-
-            //             } else {
-
-            //             }
-            //         },
-            //         fail: (err) => {
-            //             console.log(err);
-            //             uni.showToast({
-            //                 title: '您已拒绝登录',
-            //                 icon: 'none',
-            //                 duration: 2000,
-            //             });
-            //         },
-            //     });
-            // },
-
-            // // 微信头像
-            // onChooseAvatar(e) {
-            //     this.avatarUrl = e.detail;
-            //     this.$refs.inputDialog.open();
-            // },
 
             // 注册/登录
             login() {
@@ -110,27 +48,17 @@
                                         // 存储Token信息
                                         uni.setStorageSync('accessToken', tokenInfo.data.accessToken);
                                         uni.setStorageSync('refreshToken', tokenInfo.data.refreshToken);
-                                        // 跳转页面
-                                        uni.navigateTo({
-                                            url: 'input',
-                                        });
+                                        // 通过firstLogin验证是否为首次登录并跳转到不同的页面、
+                                        if (tokenInfo.data.firstLogin) {
+                                            uni.navigateTo({
+                                                url: 'input',
+                                            });
+                                        } else {
+                                            uni.reLaunch({
+                                                url: '/pages/index/index',
+                                            });
+                                        }
                                     });
-                                    // uni.request({
-                                    //     url: 'http://localhost:8081/api/v1/ua/wx/login',
-                                    //     method: 'POST',
-                                    //     data: {
-                                    //         code: resLogin.code,
-                                    //     },
-                                    //     // header: {
-                                    //     //     'Content-type': 'application/x-www-form-urlencoded',
-                                    //     // },
-                                    //     success: (resAppId) => {
-                                    //         console.log(resAppId);
-                                    //         // uni.navigateTo({
-                                    //         //     url: 'input',
-                                    //         // });
-                                    //     },
-                                    // });
                                 },
                             });
                         }
@@ -168,36 +96,6 @@
                     });
                 }
             },
-
-            // 注册
-            register() {
-                uni.navigateTo({
-                    url: '/pages/user/input',
-                });
-            },
-
-            // shareToggle() {
-            //     this.$refs.share.open();
-            // },
-
-            // dialogClose() {
-            //     console.log('点击关闭');
-            // },
-
-            // dialogInputConfirm(val) {
-            //     uni.showLoading({
-            //         title: '1秒后会关闭',
-            //     });
-
-            //     setTimeout(() => {
-            //         uni.hideLoading();
-            //         console.log(val);
-            //         this.value = val;
-            //         // 关闭窗口后，恢复默认内容
-            //         this.$refs.inputDialog.close();
-            //     }, 1000);
-            // },
-
         },
     };
 </script>

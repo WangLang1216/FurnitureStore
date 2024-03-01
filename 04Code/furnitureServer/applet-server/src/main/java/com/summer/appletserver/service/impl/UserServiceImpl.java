@@ -1,6 +1,8 @@
 package com.summer.appletserver.service.impl;
 
+import cn.hutool.core.text.CharSequenceUtil;
 import com.summer.appletserver.entity.vo.UserInfoVO;
+import com.summer.appletserver.entity.vo.UserVO;
 import com.summer.appletserver.service.UserService;
 import com.summer.commonmodule.entity.model.Customer;
 import com.summer.commonmodule.exception.RecordLoggerThrowException;
@@ -9,18 +11,16 @@ import com.summer.commonmodule.response.ResponseEnum;
 import com.summer.commonmodule.service.PhoneCodeService;
 import com.summer.commonmodule.utils.RedisUtil;
 import com.summer.securitymodule.common.EncryptionUtil;
-import com.summer.securitymodule.common.WeChatUtil;
 import com.summer.securitymodule.entity.bo.TokenInfoBO;
 import com.summer.securitymodule.entity.vo.PhoneCodeVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.Base64;
 import java.util.Objects;
 
 /**
@@ -42,9 +42,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private EncryptionUtil encryptionUtil;
 
-    @Autowired
-    private WeChatUtil weChatUtil;
-
     /**
      * 头像图片使用base64位
      */
@@ -58,10 +55,11 @@ public class UserServiceImpl implements UserService {
             RecordLoggerThrowException.record(ResponseEnum.HTTP_MESSAGE_NOT_READABLE, logger);
         }
 
-        // 将图片转化为二进制内容
-        byte[] bytes = {};
+        // 将图片转化为Base64内容
+        String imageBase64 = null;
         try {
-            bytes = Files.readAllBytes(Paths.get(Objects.requireNonNull(userInfoVO.getPicture().getOriginalFilename())));
+            byte[] imageBytes = userInfoVO.getPicture().getBytes();
+            imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
         } catch (IOException e) {
             RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, e.getMessage(),logger);
         }
@@ -76,7 +74,7 @@ public class UserServiceImpl implements UserService {
         }
 
         customer.setNickname(userInfoVO.getNickname())
-                .setPicture(BASE64 + Arrays.toString(bytes));
+                .setPicture(BASE64 + imageBase64);
         // 保存用户信息
         Customer saveCustomer = customerMapper.saveCustomer(customer);
         if (Objects.isNull(saveCustomer)) {
@@ -112,10 +110,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void bindUserWeChat(String token, String code) {
-        // 获取微信OpenId
-        String openId = weChatUtil.getWxOpenId(code);
-
+    public void saveUserNickname(String token, String nickname) {
+        if (CharSequenceUtil.isBlank(token) || CharSequenceUtil.isBlank(nickname)) {
+            RecordLoggerThrowException.record(ResponseEnum.HTTP_MESSAGE_NOT_READABLE, logger);
+        }
         // 获取Token中的数据
         TokenInfoBO tokenInfoBO = (TokenInfoBO) redisUtil.get(encryptionUtil.publicKeyDecryption(token));
 
@@ -125,11 +123,66 @@ public class UserServiceImpl implements UserService {
             RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, logger);
         }
         // 保存用户信息
-        customer.setOpenId(openId);
+        customer.setNickname(nickname);
         Customer saveCustomer = customerMapper.saveCustomer(customer);
         if (Objects.isNull(saveCustomer)) {
             RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, logger);
         }
 
+    }
+
+    @Override
+    public void saveUserPicture(String token, MultipartFile image) {
+        if (CharSequenceUtil.isBlank(token) || Objects.isNull(image)) {
+            RecordLoggerThrowException.record(ResponseEnum.HTTP_MESSAGE_NOT_READABLE, logger);
+        }
+
+        // 获取Token中的数据
+        TokenInfoBO tokenInfoBO = (TokenInfoBO) redisUtil.get(encryptionUtil.publicKeyDecryption(token));
+
+        // 查询顾客信息
+        Customer customer = customerMapper.queryCustomerById(tokenInfoBO.getUserInfoTokenBO().getUserId());
+        if (Objects.isNull(customer)) {
+            RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, logger);
+        }
+
+        // 将图片转化为Base64内容
+        String imageBase64 = null;
+        try {
+            byte[] imageBytes = image.getBytes();
+            imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
+        } catch (IOException e) {
+            RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, e.getMessage(),logger);
+        }
+
+        // 保存用户信息
+        customer.setPicture(BASE64 + imageBase64);
+        Customer saveCustomer = customerMapper.saveCustomer(customer);
+        if (Objects.isNull(saveCustomer)) {
+            RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, logger);
+        }
+
+    }
+
+    @Override
+    public UserVO getUserInfo(String token) {
+        if (CharSequenceUtil.isBlank(token)) {
+            RecordLoggerThrowException.record(ResponseEnum.HTTP_MESSAGE_NOT_READABLE, logger);
+        }
+
+        // 获取Token中的数据
+        TokenInfoBO tokenInfoBO = (TokenInfoBO) redisUtil.get(encryptionUtil.publicKeyDecryption(token));
+        // 查询顾客信息
+        Customer customer = customerMapper.queryCustomerById(tokenInfoBO.getUserInfoTokenBO().getUserId());
+        if (Objects.isNull(customer)) {
+            RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, logger);
+        }
+
+        UserVO userVO = new UserVO();
+        userVO.setNickname(customer.getNickname())
+                .setPhone(customer.getPhone())
+                .setPicture(customer.getPicture());
+
+        return userVO;
     }
 }

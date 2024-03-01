@@ -42,4 +42,11 @@ weChat:
   appId: "wxc491e906e319a6f0"
   secret: "92d1f82dab9b1e4889aee0a82ce0759e"
 
+#MinIO配置
+minio:
+  endpoint: http://127.0.0.1:9000
+  accessKey: n0K8j9RsGsjsFIUsXHCq
+  secretKey: dyDrnGknzhRRTjsEcwQAcbEA0a71UYmBMTq55pfP
+  bucketName: furniture-store
+
 

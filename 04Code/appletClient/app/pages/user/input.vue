@@ -42,11 +42,31 @@
             // 进入小程序
             toIndex() {
                 uni.uploadFile({
-                    url: 'http://localhost:8081/api/v1/ua/user',
+                    url: 'http://localhost:8081/api/v1/user',
                     filePath: this.picture,
                     name: 'picture',
                     formData: {
                         nickname: this.nickName,
+                    },
+                    header: {
+                        Authorization: uni.getStorageSync('accessToken'),
+                    },
+                    success(res) {
+                        const resJson = JSON.parse(res.data);
+                        if (resJson.code === 200) {
+                            uni.reLaunch({
+                                url: '/pages/index/index',
+                            });
+                        } else {
+                            uni.showToast({
+                                icon: 'error',
+                                title: '请求失败，请重试！',
+                                duration: 3000,
+                            });
+                            uni.reLaunch({
+                                url: '/pages/user/login',
+                            });
+                        }
                     },
                 });
                 // 请求后台
@@ -67,11 +87,6 @@
                 //         });
                 //     },
                 // });
-
-
-                uni.reLaunch({
-                    url: '/pages/index/index',
-                });
             },
 
         },

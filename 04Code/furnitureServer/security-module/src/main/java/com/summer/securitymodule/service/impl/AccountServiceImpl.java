@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -62,6 +61,11 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private TokenInfoService tokenInfoService;
 
+    /**
+     * 短信失效时间
+     */
+    private static final Integer SMS_CODE_TIME = 300;
+
     private static final Logger logger = LoggerFactory.getLogger(AccountServiceImpl.class);
 
     @Override
@@ -77,6 +81,12 @@ public class AccountServiceImpl implements AccountService {
 
         // 查询数据库中是否存在该用户，不存在则插入
         Customer customer = accountMapper.queryCustomerByOpenId(openId);
+        if (Objects.nonNull(customer)) {
+            // 校验是否设置过昵称和头像，未设置则默认首次登录
+            if (Objects.isNull(customer.getNickname()) && Objects.isNull(customer.getPicture())) {
+                firstLogin = true;
+            }
+        }
         if (Objects.isNull(customer)) {
             Customer insertCustomer = new Customer();
             insertCustomer.setOpenId(openId);
@@ -150,12 +160,23 @@ public class AccountServiceImpl implements AccountService {
 
         StoreTokenInfoBO storeTokenInfoBO = new StoreTokenInfoBO();
 
+        // 判断是微信小程序端还是Web管理平台端
         if (phoneCodeVO.getSysType()) {
             Customer customer = accountMapper.queryCustomerByPhone(phone);
+            if (Objects.nonNull(customer)) {
+                // 校验是否设置过昵称和头像，未设置则默认首次登录
+                if (Objects.isNull(customer.getNickname()) && Objects.isNull(customer.getPicture())) {
+                    firstLogin = true;
+                }
+            }
             // 查询数据库中是否存在该用户，不存在则插入
             if (Objects.isNull(customer)) {
+                // 获取微信用户OpenID
+                String openId = weChatUtil.getWxOpenId(phoneCodeVO.getWeChatCode());
+
                 Customer insertCustomer = new Customer();
-                insertCustomer.setPhone(phone);
+                insertCustomer.setOpenId(openId)
+                        .setPhone(phone);
                 Customer insert = accountMapper.insertCustomer(insertCustomer);
                 if (Objects.isNull(insert)) {
                     RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, logger);
@@ -181,7 +202,26 @@ public class AccountServiceImpl implements AccountService {
                     .setState(admin.getState());
         }
 
+        // 从Redis中删除短信验证码
+        redisUtil.del(phone);
+
         return storeTokenInfo(storeTokenInfoBO);
+    }
+
+    @Override
+    public void sendSmsCode(String phone) {
+        if (CharSequenceUtil.isBlank(phone)) {
+            RecordLoggerThrowException.record(ResponseEnum.HTTP_MESSAGE_NOT_READABLE, logger);
+        }
+
+        //TODO 发送短信服务
+        String smsCode = "1234";
+
+        // 存储到Redis
+        boolean smsCodeKey = redisUtil.set(phone, smsCode, SMS_CODE_TIME);
+        if (!smsCodeKey) {
+            RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, "Verification code storage failed", logger);
+        }
     }
 
     @Override

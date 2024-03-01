@@ -19,12 +19,12 @@ public enum ResponseEnum {
 	/**
 	 * 用户信息为空
 	 */
-	USERINFO_IS_EMPTY(-100, "User information is empty"),
+	USERINFO_IS_EMPTY(-1, "User information is empty"),
 
 	/**
 	 * openId获取失败
 	 */
-	OPEN_ID_ACQUISITION_FAILED(-101, "OpenID acquisition failed"),
+	OPEN_ID_ACQUISITION_FAILED(-1, "OpenID acquisition failed"),
 
 	/**
 	 * 方法参数没有校验，内容由输入内容决定
@@ -34,12 +34,12 @@ public enum ResponseEnum {
 	/**
 	 * 验证码失效
 	 */
-	INVALID_VERIFICATION_CODE(-102, "The verification code has expired"),
+	INVALID_VERIFICATION_CODE(-1, "The verification code has expired"),
 
 	/**
 	 * 验证码错误
 	 */
-	VERIFICATION_CODE_ERROR(-103, "Verification code error"),
+	VERIFICATION_CODE_ERROR(-1, "Verification code error"),
 
 	/**
 	 * 无法读取获取请求参数

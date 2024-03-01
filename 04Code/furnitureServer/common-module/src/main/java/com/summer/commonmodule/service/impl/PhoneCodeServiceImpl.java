@@ -1,5 +1,6 @@
 package com.summer.commonmodule.service.impl;
 
+import cn.hutool.core.text.CharSequenceUtil;
 import com.summer.commonmodule.exception.RecordLoggerThrowException;
 import com.summer.commonmodule.response.ResponseEnum;
 import com.summer.commonmodule.service.PhoneCodeService;
@@ -23,6 +24,9 @@ public class PhoneCodeServiceImpl implements PhoneCodeService {
 
     @Override
     public void checkCode(String phone, String code) {
+        if (CharSequenceUtil.isBlank(phone) || CharSequenceUtil.isBlank(code)) {
+            RecordLoggerThrowException.record(ResponseEnum.HTTP_MESSAGE_NOT_READABLE, logger);
+        }
         // 从Redis中校验验证码
         boolean codeKey = redisUtil.hasKey(phone);
         if (!codeKey) {

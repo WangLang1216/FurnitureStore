@@ -1,6 +1,7 @@
 package com.summer.appletserver.controller;
 
 import com.summer.appletserver.entity.vo.UserInfoVO;
+import com.summer.appletserver.entity.vo.UserVO;
 import com.summer.appletserver.service.UserService;
 import com.summer.commonmodule.response.ResponseEntity;
 import com.summer.securitymodule.entity.vo.PhoneCodeVO;
@@ -15,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author WangLang
  */
 @RestController
-@RequestMapping("/api/v1/ua/user")
+@RequestMapping("/api/v1/user")
 public class UserController {
 
     @Autowired
@@ -37,17 +38,6 @@ public class UserController {
 
         userService.saveUserInfo(token, userInfoVO);
 
-        // TODO 测试
-//        String fileName = picture.getOriginalFilename();
-//        java.io.File dest = new java.io.File("C:\\Users\\WangLang\\Desktop\\新建文件夹" + "/" + fileName);
-//        try (java.io.OutputStream outputStream = new java.io.FileOutputStream(dest)){
-//            byte[] bytes = picture.getBytes();
-//            outputStream.write(bytes);
-//        } catch (Exception e){
-//            throw new RuntimeException("文件保存失败", e);
-//        }
-
-
         return ResponseEntity.success();
     }
 
@@ -57,7 +47,7 @@ public class UserController {
      * @param phoneCodeVO 手机号验证码信息
      */
     @PutMapping("/phone")
-    public ResponseEntity<Void> saveUserPhone(HttpServletRequest request, PhoneCodeVO phoneCodeVO) {
+    public ResponseEntity<Void> saveUserPhone(HttpServletRequest request, @RequestBody PhoneCodeVO phoneCodeVO) {
         String token = request.getHeader("Authorization");
         userService.saveUserPhone(token, phoneCodeVO);
 
@@ -65,16 +55,42 @@ public class UserController {
     }
 
     /**
-     * 用户绑定微信
+     * 更改用户昵称信息
      * @param request 请求
-     * @param code 微信凭证
+     * @param nickname 昵称
      */
-    @PutMapping("/bind-wx")
-    public ResponseEntity<Void> bindUserWeChat(HttpServletRequest request, String code) {
+    @PutMapping("/nickname")
+    public ResponseEntity<Void> saveUserNickname(HttpServletRequest request, @RequestBody String nickname) {
         String token = request.getHeader("Authorization");
-        userService.bindUserWeChat(token, code);
+        userService.saveUserNickname(token, nickname);
 
         return ResponseEntity.success();
+    }
+
+    /**
+     * 更改用户头像
+     * @param request 请求
+     * @param picture 头像
+     */
+    @PostMapping("/picture")
+    public ResponseEntity<Void> saveUserPicture(HttpServletRequest request, @RequestParam("picture") MultipartFile picture) {
+        String token = request.getHeader("Authorization");
+        userService.saveUserPicture(token, picture);
+
+        return ResponseEntity.success();
+    }
+
+    /**
+     * 获取用户信息
+     * @param request 请求
+     * @return 用户信息
+     */
+    @GetMapping()
+    public ResponseEntity<UserVO> getUserInfo(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        UserVO userInfo = userService.getUserInfo(token);
+
+        return ResponseEntity.success(userInfo);
     }
 
 }

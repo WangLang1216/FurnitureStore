@@ -22,19 +22,20 @@ public class PhoneCodeVO {
     /**
      * 手机号
      */
-    @NotBlank
     private String phone;
 
     /**
      * 验证码
      */
-    @NotBlank
     private String code;
 
     /**
      * 系统类型，true表示微信小程序，false为管理后台
      */
-    @NotBlank
     private Boolean sysType;
 
+    /**
+     * 微信用户通信凭证码，仅sysType为true才携带
+     */
+    private String weChatCode;
 }

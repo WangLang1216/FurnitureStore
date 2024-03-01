@@ -11,16 +11,18 @@
             </view>
             <view class="code">
                 <input v-model="code" class="uni-input" maxlength="6" type="number" placeholder="请输入验证码" />
-                <button type="default" plain="true" @click="obtainCode">{{ obtainText }}</button>
+                <button type="default" plain="true" @click="obtainCode()">{{ obtainText }}</button>
             </view>
         </view>
         <view class="login">
-            <button type="primary" @click="login">登录</button>
+            <button type="primary" @click="login()">登录</button>
         </view>
     </view>
 </template>
 
 <script>
+    import { loginByPhone, sendSmsCode } from '@/api/user.js';
+
     export default {
         data() {
             return {
@@ -33,31 +35,68 @@
         methods: {
             // 获取验证码
             obtainCode() {
-                if (this.phone != '') {
-                    uni.request({
-                        url: 'http://localhost:8080/api/v1/code',
-                        method: 'GET',
-                        data: {
-                            phone: this.phone,
-                        },
-                        header: {
-                            'Content-type': 'application/x-www-form-urlencoded',
-                        },
-                        success: (res) => {
-                            this.obtainText = '已发送';
-                            setTimeout(() => {
-                                this.obtainText = '获取验证码';
-                            }, 30000);
-                            console.log(res);
-                        },
+                if (this.phone === '') {
+                    return uni.showToast({
+                        title: '请输入手机号',
+                        duration: 2000,
                     });
                 }
+                if (this.obtainText === '获取成功') {
+                    return uni.showToast({
+                        title: '验证码已发送',
+                        duration: 2000,
+                    });
+                }
+                sendSmsCode(this.phone).then((res) => {
+                    if (res.code === 200) {
+                        this.obtainText = '获取成功';
+                        uni.showToast({
+                            icon: 'success',
+                            title: '获取成功',
+                            duration: 2000,
+                        });
+                    } else {
+                        uni.showToast({
+                            icon: 'error',
+                            title: '获取失败，请重试',
+                            duration: 2000,
+                        });
+                    }
+                });
             },
 
             // 登录
             login() {
-                uni.reLaunch({
-                    url: '../index/index',
+                if (this.code === '') {
+                    return uni.showToast({
+                        title: '请输入验证码',
+                        duration: 2000,
+                    });
+                }
+                uni.login({
+                    provider: 'weixin',
+                    success: (resLogin) => {
+                        const phoneCodeVO = {};
+                        phoneCodeVO.phone = this.phone;
+                        phoneCodeVO.code = this.code;
+                        phoneCodeVO.weChatCode = resLogin.code;
+                        phoneCodeVO.sysType = true;
+                        loginByPhone(phoneCodeVO).then((tokenInfo) => {
+                            // 存储Token信息
+                            uni.setStorageSync('accessToken', tokenInfo.data.accessToken);
+                            uni.setStorageSync('refreshToken', tokenInfo.data.refreshToken);
+                            // 通过firstLogin验证是否为首次登录并跳转到不同的页面、
+                            if (tokenInfo.data.firstLogin) {
+                                uni.navigateTo({
+                                    url: 'input',
+                                });
+                            } else {
+                                uni.reLaunch({
+                                    url: '/pages/index/index',
+                                });
+                            }
+                        });
+                    },
                 });
             },
         },

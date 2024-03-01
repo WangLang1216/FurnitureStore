@@ -36,14 +36,10 @@ public class WeChatUtil {
      * @return OpenId
      */
     public String getWxOpenId(String code) {
-//        //TODO 暂时
-//        return "123";
-        JSONObject jsonCode = JSON.parseObject(code);
-        String authUrl = AUTH_URL + "&appid=" + APP_ID + "&secret=" + SECRET + "&js_code=" + jsonCode.get("code");
+        String authUrl = AUTH_URL + "&appid=" + APP_ID + "&secret=" + SECRET + "&js_code=" + code;
         String result = HttpUtil.get(authUrl);
         JSONObject jsonObject = JSON.parseObject(result);
         String openid = jsonObject.getString("openid");
-        System.out.println(openid);
         if (CharSequenceUtil.isBlank(openid)) {
             RecordLoggerThrowException.record(ResponseEnum.OPEN_ID_ACQUISITION_FAILED, logger);
         }

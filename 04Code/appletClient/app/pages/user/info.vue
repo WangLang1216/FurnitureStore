@@ -5,22 +5,22 @@
             <view>
                 <view>头像</view>
                 <view style="padding-left: 65%;">
-                    <uni-file-picker limit="1" :delIcon="false" disablePreview :imageStyles="imageStyles" fileMediatype="image" @success="success" @fail="fail">
-                        <image src="../../static/images/default-avatar.png" mode="widthFix"></image>
+                    <uni-file-picker limit="1" :delIcon="false" disablePreview :imageStyles="imageStyles" fileMediatype="image" @select="select">
+                        <image :src="userInfo.picture" mode="widthFix"></image>
                     </uni-file-picker>
                 </view>
             </view>
             <view>
                 <view>手机号</view>
                 <view @click="$refs.popup.open()">
-                    <text>{{ phone }}</text>
+                    <text>{{ userInfo.phone }}</text>
                     <uni-icons type="right" size="25"></uni-icons>
                 </view>
             </view>
             <view>
                 <view>昵称</view>
                 <view style="display: flex;">
-                    <input v-model="name" style="margin-top: 8%;" />
+                    <input v-model="userInfo.nickname" style="margin-top: 8%;" @blur="updateNickname()" />
                     <uni-icons type="right" size="25"></uni-icons>
                 </view>
             </view>
@@ -39,35 +39,42 @@
                 </view>
                 <view>
                     <view>
-                        <input placeholder="请输入需要修改的手机号码" />
+                        <input v-model="newPhone" placeholder="请输入需要修改的手机号码" />
                     </view>
                     <view>
                         <view>
-                            <input placeholder="请输入验证码" />
+                            <input v-model="smsCode" placeholder="请输入验证码" />
                         </view>
                         <view>
-                            <button>获取验证码</button>
+                            <button @click="sendSmsCode()">{{ countdown }}</button>
                         </view>
                     </view>
                 </view>
                 <view>
-                    <button>确定修改</button>
+                    <button @click="updatePhone()">确定修改</button>
                 </view>
             </view>
         </uni-popup>
         <view>
-            <button>退出登录</button>
+            <button @click="logout()">退出登录</button>
         </view>
     </view>
 </template>
 
 <script>
+    import { getUserInfo, logout, saveUserNickname, saveUserPhone, sendSmsCode } from '@/api/user.js';
+
     export default {
         data() {
             return {
-                phone: '17345449129',
-                name: '诗随远方',
-
+                // 用户信息
+                userInfo: '',
+                // 输入信息
+                newPhone: '',
+                // 验证码
+                smsCode: '',
+                // 倒计时
+                countdown: '获取验证码',
                 imageStyles: {
                     width: 64,
                     height: 64,
@@ -78,15 +85,144 @@
             };
         },
 
+        mounted() {
+            // 查询用户信息
+            getUserInfo().then((res) => {
+                this.userInfo = res.data;
+            });
+        },
+
         methods: {
-            // 上传成功
-            success(e) {
-                console.log('上传成功');
+            // 发送短信验证码
+            sendSmsCode() {
+                if (this.countdown === '获取成功') {
+                    return uni.showToast({
+                        icon: 'error',
+                        title: '不可重复获取',
+                        duration: 3000,
+                    });
+                }
+                if (this.newPhone !== '') {
+                    sendSmsCode(this.newPhone).then((res) => {
+                        if (res.code === 200) {
+                            this.countdown = '获取成功';
+                            uni.showToast({
+                                title: '获取成功，五分钟有效',
+                                duration: 3000,
+                            });
+                        }
+                    });
+                } else {
+                    uni.showToast({
+                        icon: 'none',
+                        title: '请输入手机号',
+                        duration: 2000,
+                    });
+                }
             },
 
-            // 上传失败
-            fail(e) {
-                console.log('上传失败：', e);
+            // 修改手机号
+            updatePhone() {
+                if (this.smsCode !== '') {
+                    const phoneCodeInfo = {};
+                    phoneCodeInfo.phone = this.newPhone;
+                    phoneCodeInfo.code = this.smsCode;
+                    phoneCodeInfo.sysType = true;
+                    saveUserPhone(phoneCodeInfo).then((res) => {
+                        if (res.code === 200) {
+                            getUserInfo().then((res) => {
+                                this.userInfo = res.data;
+                            });
+                            this.$refs.popup.close();
+                            this.countdown = '获取验证码';
+                        }
+                    });
+                } else {
+                    uni.showToast({
+                        icon: 'none',
+                        title: '请输入验证码',
+                        duration: 2000,
+                    });
+                }
+            },
+
+            // 修改昵称
+            updateNickname() {
+                if (this.userInfo.nickname === '') {
+                    uni.showToast({
+                        title: '昵称不能为空',
+                        duration: 3000,
+                    });
+                } else {
+                    saveUserNickname(this.userInfo.nickname).then((res) => {
+                        if (res.code === 200) {
+                            getUserInfo().then((res) => {
+                                this.userInfo = res.data;
+                            });
+                            uni.showToast({
+                                icon: 'success',
+                                title: '修改成功',
+                                duration: 3000,
+                            });
+                        }
+                    });
+                }
+            },
+
+            // 上传头像
+            select(e) {
+                uni.uploadFile({
+                    url: 'http://localhost:8081/api/v1/user/picture',
+                    filePath: e.tempFilePaths[0],
+                    name: 'picture',
+                    formData: {},
+                    header: {
+                        Authorization: uni.getStorageSync('accessToken'),
+                    },
+                    success(res) {
+                        const resJson = JSON.parse(res.data);
+                        if (resJson.code === 200) {
+                            getUserInfo().then((res) => {
+                                this.userInfo = res.data;
+                            });
+                            uni.showToast({
+                                icon: 'success',
+                                title: '修改成功',
+                                duration: 3000,
+                            });
+                        } else {
+                            uni.showToast({
+                                icon: 'error',
+                                title: '请求失败，请重试！',
+                                duration: 3000,
+                            });
+                        }
+                    },
+                });
+            },
+
+            // 退出登录
+            logout() {
+                logout().then((res) => {
+                    if (res.code === 200) {
+                        uni.showToast({
+                            icon: 'success',
+                            title: '退出成功',
+                            duration: 1000,
+                        });
+                        setTimeout(() => {
+                            uni.reLaunch({
+                                url: '/pages/user/login',
+                            });
+                        }, 1000);
+                    } else {
+                        uni.showToast({
+                            icon: 'error',
+                            title: '退出失败，请重试',
+                            duration: 3000,
+                        });
+                    }
+                });
             },
         },
     };
