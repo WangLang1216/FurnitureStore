@@ -1,5 +1,6 @@
 package com.summer.commonmodule.mapper.impl;
 
+import cn.hutool.core.util.IdUtil;
 import com.summer.commonmodule.entity.model.Customer;
 import com.summer.commonmodule.mapper.CustomerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ public class CustomerMapperImpl implements CustomerMapper {
 
     @Override
     public Customer insertCustomer(Customer customer) {
+        customer.setUserId(IdUtil.simpleUUID());
         Date date = new Date();
         customer.setCreateTime(date)
                 .setModifiedTime(date);

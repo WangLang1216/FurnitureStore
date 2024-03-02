@@ -11,10 +11,10 @@
             <scroll-view class="scroll" scrollTop="100" scrollX="true" scrollLeft="0" @scroll="scroll">
                 <view v-for="(item, index) in nav" :key="index" class="nav-item uni-column uni-flex">
                     <view class="flex-item flex-item-V">
-                        <image :src="item.icon" :mode="item.mode"></image>
+                        <image :src="item.image" :mode="item.mode"></image>
                     </view>
                     <view class="flex-item flex-item-V">
-                        <text>{{ item.title }}</text>
+                        <text>{{ item.name }}</text>
                     </view>
                 </view>
             </scroll-view>
@@ -44,6 +44,8 @@
 </template>
 
 <script>
+    import { getCategorySpaceInfo } from '@/api/browseData.js';
+
     import search from '../search/search.vue';
     import bottomNavigation from '../navigation/bottomNavigation.vue';
 
@@ -57,27 +59,27 @@
             return {
                 // 导航
                 nav: [
-                    { title: '客厅', mode: 'widthFix', icon: '/static/images/classification/nav1.jpg' },
-                    { title: '餐厅', mode: 'widthFix', icon: '/static/images/classification/nav2.jpg' },
-                    { title: '卧室', mode: 'widthFix', icon: '/static/images/classification/nav3.jpg' },
-                    { title: '书房', mode: 'widthFix', icon: '/static/images/classification/nav4.jpg' },
-                    { title: '饰品', mode: 'widthFix', icon: '/static/images/classification/nav5.jpg' },
-                    { title: '厨房', mode: 'aspectFit', icon: '/static/images/classification/nav6.jpg' },
-                    { title: '阳台', mode: 'aspectFit', icon: '/static/images/classification/nav7.jpg' },
+                    // { title: '客厅', mode: 'widthFix', icon: '/static/images/classification/nav1.jpg' },
+                    // { title: '餐厅', mode: 'widthFix', icon: '/static/images/classification/nav2.jpg' },
+                    // { title: '卧室', mode: 'widthFix', icon: '/static/images/classification/nav3.jpg' },
+                    // { title: '书房', mode: 'widthFix', icon: '/static/images/classification/nav4.jpg' },
+                    // { title: '饰品', mode: 'widthFix', icon: '/static/images/classification/nav5.jpg' },
+                    // { title: '厨房', mode: 'aspectFit', icon: '/static/images/classification/nav6.jpg' },
+                    // { title: '阳台', mode: 'aspectFit', icon: '/static/images/classification/nav7.jpg' },
                 ],
                 // 分类数据
                 category: [
-                    { name: '沙发', image: '/static/images/classification/sofa.jpg' },
-                    { name: '茶几', image: '/static/images/classification/tea-table.jpg' },
-                    { name: '电视柜', image: '/static/images/classification/TVcabinet.jpg' },
-                    { name: '鞋柜', image: '/static/images/classification/shoe-cabinet.jpg' },
-                    { name: '餐椅', image: '/static/images/classification/dining-chair.jpg' },
-                    { name: '餐边柜', image: '/static/images/classification/meal-side cabinet.jpg' },
-                    { name: '床', image: '/static/images/classification/bed.jpg' },
-                    { name: '床头柜', image: '/static/images/classification/bedside-table.jpg' },
-                    { name: '床垫', image: '/static/images/classification/mattress.jpg' },
-                    { name: '餐桌', image: '/static/images/classification/board.jpg' },
-                    { name: '休闲椅', image: '/static/images/classification/leisure-chairs.jpg' },
+                    // { name: '沙发', image: '/static/images/classification/sofa.jpg' },
+                    // { name: '茶几', image: '/static/images/classification/tea-table.jpg' },
+                    // { name: '电视柜', image: '/static/images/classification/TVcabinet.jpg' },
+                    // { name: '鞋柜', image: '/static/images/classification/shoe-cabinet.jpg' },
+                    // { name: '餐椅', image: '/static/images/classification/dining-chair.jpg' },
+                    // { name: '餐边柜', image: '/static/images/classification/meal-side cabinet.jpg' },
+                    // { name: '床', image: '/static/images/classification/bed.jpg' },
+                    // { name: '床头柜', image: '/static/images/classification/bedside-table.jpg' },
+                    // { name: '床垫', image: '/static/images/classification/mattress.jpg' },
+                    // { name: '餐桌', image: '/static/images/classification/board.jpg' },
+                    // { name: '休闲椅', image: '/static/images/classification/leisure-chairs.jpg' },
                 ],
                 old: {
                     scrollTop: 0,
@@ -88,6 +90,23 @@
         mounted() {
             // 取消顶部返回首页按钮
             uni.hideHomeButton();
+            // 获取品类空间信息
+            getCategorySpaceInfo().then((res) => {
+                if (res.code === 200) {
+                    let space = [];
+                    let categor = [];
+                    res.data.forEach((element) => {
+                        element.type === 'category' ? categor = element.spaceInfo : space = element.spaceInfo;
+                    });
+                    const nav = [];
+                    space.forEach((element) => {
+                        element.name !== '厨房' && element.name !== '阳台' ? element.mode = 'widthFix' : element.mode = 'aspectFit';
+                        nav.push(element);
+                    });
+                    this.nav = nav;
+                    this.category = categor;
+                }
+            });
         },
 
         methods: {

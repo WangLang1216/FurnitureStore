@@ -117,18 +117,22 @@
 
         onShow() {
             // 查询用户信息
-            getUserInfo().then((res) => {
-                this.userInfo = res.data;
-            });
+            if (uni.getStorageSync('accessToken')) {
+                getUserInfo().then((res) => {
+                    this.userInfo = res.data;
+                });
+            }
         },
 
         mounted() {
             // 取消顶部返回首页按钮
             uni.hideHomeButton();
             // 查询用户信息
-            getUserInfo().then((res) => {
-                this.userInfo = res.data;
-            });
+            if (uni.getStorageSync('accessToken')) {
+                getUserInfo().then((res) => {
+                    this.userInfo = res.data;
+                });
+            }
         },
 
         methods: {

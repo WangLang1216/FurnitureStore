@@ -19,6 +19,7 @@
         <!-- 次要依赖 -->
         <hutool.version>5.8.18</hutool.version>
         <io.minio.version>8.2.2</io.minio.version>
+        <alibaba.fastjson.version>1.2.51</alibaba.fastjson.version>
     </properties>
 
     <dependencies>
@@ -53,6 +54,12 @@
             <groupId>io.minio</groupId>
             <artifactId>minio</artifactId>
             <version>${io.minio.version}</version>
+        </dependency>
+        <!-- fastjson -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${alibaba.fastjson.version}</version>
         </dependency>
 
         <!-- lombok -->

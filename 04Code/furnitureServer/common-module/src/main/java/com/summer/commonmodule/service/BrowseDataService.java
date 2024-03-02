@@ -1,6 +1,7 @@
 package com.summer.commonmodule.service;
 
 import com.summer.commonmodule.entity.vo.CategorySpaceVO;
+import com.summer.commonmodule.entity.vo.WeChatIndexDataVO;
 
 import java.util.List;
 
@@ -16,6 +17,9 @@ public interface BrowseDataService {
      */
     List<CategorySpaceVO> getCategorySpaceInfo();
 
-
-
+    /**
+     * 获取微信小程序主页数据
+     * @return 微信小程序主页数据信息集合
+     */
+    List<WeChatIndexDataVO> getWeChatIndexData();
 }
