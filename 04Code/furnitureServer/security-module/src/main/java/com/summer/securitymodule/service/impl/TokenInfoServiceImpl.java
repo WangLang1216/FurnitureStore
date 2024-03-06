@@ -1,14 +1,14 @@
 package com.summer.securitymodule.service.impl;
 
 import cn.hutool.core.text.CharSequenceUtil;
+import com.summer.commonmodule.entity.bo.TokenInfoBO;
+import com.summer.commonmodule.entity.bo.UserInfoTokenBO;
 import com.summer.commonmodule.exception.RecordLoggerThrowException;
 import com.summer.commonmodule.response.ResponseEnum;
+import com.summer.commonmodule.utils.EncryptionUtil;
 import com.summer.commonmodule.utils.RedisUtil;
-import com.summer.securitymodule.common.EncryptionUtil;
 import com.summer.securitymodule.common.TokenUtil;
 import com.summer.securitymodule.entity.bo.TokenBO;
-import com.summer.securitymodule.entity.bo.TokenInfoBO;
-import com.summer.securitymodule.entity.bo.UserInfoTokenBO;
 import com.summer.securitymodule.entity.bo.UserTokenBO;
 import com.summer.securitymodule.entity.vo.TokenInfoVO;
 import com.summer.securitymodule.service.TokenInfoService;
@@ -48,7 +48,7 @@ public class TokenInfoServiceImpl implements TokenInfoService {
         boolean tokenKey = redisUtil.hasKey(userInfoTokenBO.getUserId());
         if (tokenKey) {
             UserTokenBO userTokenBO = (UserTokenBO) redisUtil.get(userInfoTokenBO.getUserId());
-            redisUtil.del(userTokenBO.getAccessToken(), userTokenBO.getRefreshToken());
+            redisUtil.del(userTokenBO.getAccessToken(), userTokenBO.getRefreshToken(), userInfoTokenBO.getUserId());
         }
 
         // 创建AccessToken

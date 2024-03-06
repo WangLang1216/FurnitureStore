@@ -1,16 +1,14 @@
 package com.summer.securitymodule.common;
 
-import cn.hutool.core.codec.Base64;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.crypto.CryptoException;
-import cn.hutool.crypto.asymmetric.AsymmetricAlgorithm;
-import cn.hutool.crypto.asymmetric.RSA;
+import com.summer.commonmodule.entity.bo.TokenInfoBO;
 import com.summer.commonmodule.exception.RecordLoggerThrowException;
 import com.summer.commonmodule.response.ResponseEnum;
+import com.summer.commonmodule.utils.EncryptionUtil;
 import com.summer.commonmodule.utils.RedisUtil;
 import com.summer.securitymodule.entity.bo.TokenBO;
-import com.summer.securitymodule.entity.bo.TokenInfoBO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

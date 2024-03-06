@@ -24,8 +24,8 @@
                 </view>
                 <view class="cardRight">
                     <view>
-                        <text>{{ item.name }}</text>
-                        <text> 样色：{{ item.colour + ',' + item.materialQuality + ',' + item.size }}</text>
+                        <text>{{ item.productName }}</text>
+                        <text> 样色：{{ item.productColour + ',' + item.materialType + ',' + item.productSize }}</text>
                     </view>
                     <view>
                         <view>
@@ -44,13 +44,13 @@
         <view v-else class="notLogin">
             <image src="@/static/images/not-login.jpg" mode="aspectFit"></image>
             <text>请先登录，登录后查看您的购物车商品</text>
-            <button>去登录</button>
+            <button @click="toLogin()">去登录</button>
         </view>
         <!-- 猜你喜欢推荐 -->
         <text class="recommendedTitles">猜您喜欢</text>
         <recommend></recommend>
         <!-- 底部操作区域 -->
-        <view class="bottomSettlement">
+        <view v-if="isLogin" class="bottomSettlement">
             <view v-show="notDelete">
                 合计：
                 <text>￥</text>
@@ -59,8 +59,8 @@
             <!-- 占位 -->
             <view v-show="notDelete == false"></view>
             <view>
-                <button v-show="notDelete">预订({{ getOrderQuantity() }})</button>
-                <button v-show="notDelete">结算({{ getOrderQuantity() }})</button>
+                <button v-show="notDelete" @click="addOrderInfo()">预订({{ getOrderQuantity() }})</button>
+                <button v-show="notDelete" @click="addOrderInfo()">结算({{ getOrderQuantity() }})</button>
                 <button v-show="notDelete == false" class="deleteButton" @click="orderRemove()">删除</button>
             </view>
         </view>
@@ -70,6 +70,8 @@
 </template>
 
 <script>
+    import { addOrder, deleteShopping, getShopping, updateShopping } from '@/api/user.js';
+
     import bottomNavigation from '../navigation/bottomNavigation.vue';
     import recommend from '../recommend/recommend.vue';
     export default {
@@ -86,10 +88,11 @@
                 isSelectAll: false,
                 // 购物车信息
                 shoppingTrolley: [
-                    { isSelect: false, name: '意式极简磨砂质感沙发 科技布真皮沙发1', size: '单人1050*1050*700', materialQuality: '磨砂布科技布', colour: '先锋XFB538-1', price: 4513, quantity: 1, image: '../../static/images/shopping/shopping1.jpg' },
-                    { isSelect: false, name: '意式极简磨砂质感沙发 科技布真皮沙发2', size: '单人1050*1050*700', materialQuality: '磨砂布科技布', colour: '先锋XFB538-1', price: 4513, quantity: 1, image: '../../static/images/shopping/shopping1.jpg' },
-                    // { isSelect: false, name: '意式极简磨砂质感沙发 科技布真皮沙发3', size: '单人1050*1050*700', materialQuality: '磨砂布科技布', colour: '先锋XFB538-1', price: 4513, quantity: 1, image: '../../static/images/shopping/shopping1.jpg' },
+                    // { isSelect: false, name: '意式极简磨砂质感沙发 科技布真皮沙发1', size: '单人1050*1050*700', materialQuality: '磨砂布科技布', colour: '先锋XFB538-1', price: 4513, quantity: 1, image: '../../static/images/shopping/shopping1.jpg' },
+                    // { isSelect: false, name: '意式极简磨砂质感沙发 科技布真皮沙发2', size: '单人1050*1050*700', materialQuality: '磨砂布科技布', colour: '先锋XFB538-1', price: 4513, quantity: 1, image: '../../static/images/shopping/shopping1.jpg' },
                 ],
+                // 选择购物车ID
+                selectShopping: '',
                 // 订单数量
                 orderQuantity: 0,
                 // 订单总额
@@ -104,9 +107,6 @@
             };
         },
 
-        computed: {
-
-        },
 
         watch: {
             isSelectAll() {
@@ -128,6 +128,7 @@
 
             // 数组改变重新计算
             status() {
+                this.selectShopping = '';
                 // 计算总额和总数
                 this.totalOrderAmount = 0;
                 this.orderQuantity = 0;
@@ -135,8 +136,10 @@
                     if (element.isSelect) {
                         this.totalOrderAmount += element.price * element.quantity;
                         this.orderQuantity++;
+                        this.selectShopping += `${element.shoppingId},`;
                     }
                 });
+                this.selectShopping = this.selectShopping.substr(0, this.selectShopping.length - 1);
                 // 全选或非全选
                 this.isSelectAll = this.orderQuantity == this.shoppingTrolley.length;
             },
@@ -145,16 +148,107 @@
         mounted() {
             // 取消顶部返回首页按钮
             uni.hideHomeButton();
+
+            // 查询用户状态
+            if (uni.getStorageSync('accessToken')) {
+                this.isLogin = true;
+                getShopping().then((res) => {
+                    if (res.code === 200) {
+                        this.shoppingTrolley = res.data;
+                    }
+                });
+            } else {
+                this.isLogin = false;
+            }
         },
 
         methods: {
+            // 新增订单
+            addOrderInfo() {
+                if (this.orderQuantity === 0) {
+                    return uni.showToast({
+                        icon: 'none',
+                        title: '请先选择商品',
+                        duration: 2000,
+                    });
+                }
+
+                const that = this;
+                uni.showModal({
+                    title: '模拟是否已付款',
+                    showCancel: true,
+                    success(res) {
+                        const orderInfoVO = {};
+                        orderInfoVO.shoppingIds = that.selectShopping;
+                        // 模拟订单支付状态
+                        if (res.confirm) {
+                            orderInfoVO.orderState = true;
+                        } else {
+                            orderInfoVO.orderState = false;
+                        }
+                        // 结算
+                        addOrder(orderInfoVO).then((res) => {
+                            if (res.code === 200) {
+                                getShopping().then((res) => {
+                                    if (res.code === 200) {
+                                        that.shoppingTrolley = res.data;
+                                    }
+                                });
+                            }
+                        });
+                    },
+                });
+            },
+
             // 订单删除
             orderRemove() {
-                console.log('123');
                 if (this.orderQuantity == this.shoppingTrolley.length) {
+                    const that = this;
                     // 是否全部删除
-                    this.shoppingTrolley = [];
+                    uni.showModal({
+                        title: '是否全部删除',
+                        showCancel: true,
+                        success(res) {
+                            deleteShopping(that.selectShopping).then((res) => {
+                                if (res.code === 200) {
+                                    uni.showToast({
+                                        icon: 'success',
+                                        title: '删除成功',
+                                        duration: 2000,
+                                    });
+
+                                    that.shoppingTrolley = [];
+                                } else {
+                                    return uni.showToast({
+                                        icon: 'error',
+                                        title: '删除失败',
+                                        duration: 2000,
+                                    });
+                                }
+                            });
+                        },
+                    });
                 } else if (this.orderQuantity != 0) {
+                    deleteShopping(this.selectShopping).then((res) => {
+                        if (res.code === 200) {
+                            uni.showToast({
+                                icon: 'success',
+                                title: '删除成功',
+                                duration: 2000,
+                            });
+                            getShopping().then((res) => {
+                                if (res.code === 200) {
+                                    this.shoppingTrolley = res.data;
+                                }
+                            });
+                        } else {
+                            return uni.showToast({
+                                icon: 'error',
+                                title: '删除失败',
+                                duration: 2000,
+                            });
+                        }
+                    });
                     const temp = this.shoppingTrolley.filter((element) => {
                         return element.isSelect == false;
                     });
@@ -181,13 +275,27 @@
                         // 数量最高为5
                         return;
                     }
-                    this.shoppingTrolley[index].quantity++;
+                    const shoppingUpdateVO = {};
+                    shoppingUpdateVO.shoppingId = this.shoppingTrolley[index].shoppingId;
+                    shoppingUpdateVO.quantity = this.shoppingTrolley[index].quantity + 1;
+                    updateShopping(shoppingUpdateVO).then((res) => {
+                        if (res.code === 200) {
+                            this.shoppingTrolley[index].quantity++;
+                        }
+                    });
                 } else {
                     if (--quantity < 1) {
                         // 数量最低为1
                         return;
                     }
-                    this.shoppingTrolley[index].quantity--;
+                    const shoppingUpdateVO = {};
+                    shoppingUpdateVO.shoppingId = this.shoppingTrolley[index].shoppingId;
+                    shoppingUpdateVO.quantity = this.shoppingTrolley[index].quantity - 1;
+                    updateShopping(shoppingUpdateVO).then((res) => {
+                        if (res.code === 200) {
+                            this.shoppingTrolley[index].quantity--;
+                        }
+                    });
                 }
                 this.status = !this.status;
             },
@@ -197,6 +305,13 @@
                 return operationType
                     ? quantity == 5 ? this.limitsButtonStyle : this.normalButtonStyle
                     : quantity == 1 ? this.limitsButtonStyle : this.normalButtonStyle;
+            },
+
+            // 前往登录
+            toLogin() {
+                uni.navigateTo({
+                    url: '/pages/user/login',
+                });
             },
         },
     };

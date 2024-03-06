@@ -110,7 +110,6 @@
             // 回车搜索
             enterSearch() {
                 if (this.searchContent !== '') {
-                    console.log(this.searchContent);
                     uni.navigateTo({
                         url: `/pages/search/search-index?searchContent=${this.searchContent}`,
                     });

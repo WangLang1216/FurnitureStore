@@ -1,18 +1,18 @@
 package com.summer.securitymodule.service.impl;
 
 import cn.hutool.core.text.CharSequenceUtil;
+import com.summer.commonmodule.entity.bo.TokenInfoBO;
+import com.summer.commonmodule.entity.bo.UserInfoTokenBO;
 import com.summer.commonmodule.entity.model.Admin;
 import com.summer.commonmodule.exception.RecordLoggerThrowException;
 import com.summer.commonmodule.mapper.AdminMapper;
 import com.summer.commonmodule.response.ResponseEnum;
+import com.summer.commonmodule.utils.EncryptionUtil;
 import com.summer.commonmodule.utils.RedisUtil;
-import com.summer.securitymodule.common.EncryptionUtil;
 import com.summer.securitymodule.common.WeChatUtil;
 import com.summer.securitymodule.common.TokenUtil;
 import com.summer.securitymodule.constant.SysTypeEnum;
 import com.summer.securitymodule.entity.bo.StoreTokenInfoBO;
-import com.summer.securitymodule.entity.bo.TokenInfoBO;
-import com.summer.securitymodule.entity.bo.UserInfoTokenBO;
 import com.summer.commonmodule.entity.model.Customer;
 import com.summer.securitymodule.entity.bo.UserTokenBO;
 import com.summer.securitymodule.entity.vo.AccountVO;
@@ -231,7 +231,7 @@ public class AccountServiceImpl implements AccountService {
         }
 
         // 获取Token中的用户信息
-        TokenInfoBO tokenInfo = tokenUtil.getTokenInfo(token);
+        TokenInfoBO tokenInfo = (TokenInfoBO) tokenUtil.getTokenInfo(token);
 
         // 查询Redis中的该用户Token信息
         UserTokenBO userTokenBO = (UserTokenBO) redisUtil.get(tokenInfo.getUserInfoTokenBO().getUserId());

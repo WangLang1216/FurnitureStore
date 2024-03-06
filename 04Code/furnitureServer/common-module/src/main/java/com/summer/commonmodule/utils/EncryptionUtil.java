@@ -1,4 +1,4 @@
-package com.summer.securitymodule.common;
+package com.summer.commonmodule.utils;
 
 import cn.hutool.crypto.CryptoException;
 import cn.hutool.crypto.asymmetric.AsymmetricAlgorithm;

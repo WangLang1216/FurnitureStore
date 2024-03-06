@@ -6,7 +6,7 @@
             <view>
                 <uni-easyinput v-model="searchContent" :styles="styles" confirmType="search" placeholderStyle="font-size:33rpx" prefixIcon="search" placeholder="请输入关键字搜索" @change="enterSearch()"></uni-easyinput>
             </view>
-            <view>
+            <view @click="enterSearch()">
                 <text>搜索</text>
             </view>
         </view>
@@ -32,36 +32,36 @@
         </view>
         <!-- 第一个筛选内容 -->
         <view v-show="firstScreenContent" class="firstAndSecondScreenContent">
-            <view>
+            <view @click="firstContentInfo('综合', 'productInfo.score')">
                 <view>
                     <text>综合</text>
                 </view>
                 <view>
-                    <uni-icons type="checkbox-filled" size="30" color="#7e1e1f"></uni-icons>
+                    <uni-icons v-show="firstContent === '综合'" type="checkbox-filled" size="30" color="#7e1e1f"></uni-icons>
                 </view>
             </view>
-            <view>
+            <view @click="firstContentInfo('上新', 'create_time')">
                 <view>
                     <text>上新</text>
                 </view>
                 <view>
-                    <uni-icons type="checkbox-filled" size="30" color="#7e1e1f"></uni-icons>
+                    <uni-icons v-show="firstContent === '上新'" type="checkbox-filled" size="30" color="#7e1e1f"></uni-icons>
                 </view>
             </view>
-            <view>
+            <view @click="firstContentInfo('销量', 'productInfo.sold')">
                 <view>
                     <text>销量</text>
                 </view>
                 <view>
-                    <uni-icons type="checkbox-filled" size="30" color="#7e1e1f"></uni-icons>
+                    <uni-icons v-show="firstContent === '销量'" type="checkbox-filled" size="30" color="#7e1e1f"></uni-icons>
                 </view>
             </view>
-            <view>
+            <view @click="firstContentInfo('人气', 'productInfo.heat')">
                 <view>
                     <text>人气</text>
                 </view>
                 <view>
-                    <uni-icons type="checkbox-filled" size="30" color="#7e1e1f"></uni-icons>
+                    <uni-icons v-show="firstContent === '人气'" type="checkbox-filled" size="30" color="#7e1e1f"></uni-icons>
                 </view>
             </view>
             <view class="firstScreenContentSpecial">
@@ -69,8 +69,8 @@
                     <text>价格</text>
                 </view>
                 <view>
-                    <button>由高到低</button>
-                    <button>由低到高</button>
+                    <button @click="priceProduct(1)">由高到低</button>
+                    <button @click="priceProduct(0)">由低到高</button>
                 </view>
             </view>
         </view>
@@ -78,19 +78,19 @@
         <view v-show="secondScreenContent" class="secondScreenContent">
             <scroll-view :scrollTop="scrollTop" scrollY="true" class="scroll-Y1" @scroll="scroll">
                 <view class="firstAndSecondScreenContent">
-                    <view v-for="(item, index) in productStyle" :key="index">
+                    <view v-for="(item, index) in productStyle" :key="index" @click="secondContent = secondContent === item ? '' : item">
                         <view>
-                            <text>{{ item.name }}</text>
+                            <text>{{ item }}</text>
                         </view>
-                        <view v-show="item.selected">
+                        <view v-show="secondContent === item">
                             <uni-icons type="checkbox-filled" size="30" color="#7e1e1f"></uni-icons>
                         </view>
                     </view>
                 </view>
             </scroll-view>
             <view>
-                <button>重置</button>
-                <button>确定</button>
+                <button @click="secondContent = ''">重置</button>
+                <button @click="secondContentInfo(true)">确定</button>
             </view>
         </view>
         <!-- 第三个筛选内容 -->
@@ -101,8 +101,8 @@
                         <text>品类</text>
                     </view>
                     <view>
-                        <view v-for="(item, index) in category" :key="index" @click="clickFilterContent(index, true)">
-                            <text :style="item.selected ? { color: 'black' } : { color: 'rgb(117, 117, 117)' }">{{ item.name }}</text>
+                        <view v-for="(item, index) in category" :key="index" @click="thirdContent = thirdContent === item ? '' : item;">
+                            <text :style="thirdContent === item ? { color: 'black' } : { color: 'rgb(117, 117, 117)' }">{{ item }}</text>
                         </view>
                     </view>
                 </view>
@@ -111,20 +111,20 @@
                         <text>空间</text>
                     </view>
                     <view>
-                        <view v-for="(item, index) in space" :key="index" @click="clickFilterContent(index, false)">
-                            <text :style="item.selected ? { color: 'black' } : { color: 'rgb(117, 117, 117)' }">{{ item.name }}</text>
+                        <view v-for="(item, index) in space" :key="index" @click="thirdContent = thirdContent === item ? '' : item;">
+                            <text :style="thirdContent === item ? { color: 'black' } : { color: 'rgb(117, 117, 117)' }">{{ item }}</text>
                         </view>
                     </view>
                 </view>
             </scroll-view>
             <view>
-                <button>重置</button>
-                <button>确定</button>
+                <button @click="thirdContent = ''">重置</button>
+                <button @click="secondContentInfo(false)">确定</button>
             </view>
         </view>
         <!-- 显示产品 -->
         <view class="content" :style="maskStyle()">
-            <view v-for="(item, index) in product" :key="index" :style="cardDisplay ? { width: '91%' } : { width: '45.5%' }">
+            <view v-for="(item, index) in product" :key="index" :style="cardDisplay ? { width: '91%' } : { width: '45.5%' }" @click="productInfo(item.productId)">
                 <view>
                     <image :src="item.image" mode="widthFix"></image>
                 </view>
@@ -142,62 +142,35 @@
 </template>
 
 <script>
+    import { getScreenProduct } from '@/api/browseData.js';
+
     export default {
         data() {
             return {
                 // 搜索内容
                 searchContent: '',
+                productType: '',
+                productValue: '',
+                // 筛选内容123
+                firstContent: '',
+                secondContent: '',
+                thirdContent: '',
                 // 第一/二/三个筛选内容
                 firstScreenContent: false,
                 secondScreenContent: false,
                 thirdScreenContent: false,
                 // 风格
-                productStyle: [
-                    { name: '轻奢主义', selected: true },
-                    { name: '现代简约', selected: false },
-                    { name: '自然北欧', selected: false },
-                    { name: '现代中式', selected: false },
-                    { name: '精品实木', selected: false },
-                    { name: '经典美式', selected: false },
-                    { name: '奢华欧法', selected: false },
-                    { name: '软装配饰', selected: false },
-                    { name: '佗寂风/中古风', selected: false },
-                    { name: '轻奢风', selected: false },
-                ],
+                productStyle: ['轻奢主义', '现代极简', '自然北欧', '现代中式', '精品实木', '经典美式', '奢华欧法', '软装配饰', '佗寂风/中古风', '轻奢风'],
                 // 第三个筛选内容 —— 品类
-                category: [
-                    { name: '沙发', selected: true },
-                    { name: '茶几', selected: false },
-                    { name: '电视柜', selected: false },
-                    { name: '鞋柜', selected: false },
-                    { name: '餐椅', selected: false },
-                    { name: '餐边柜', selected: false },
-                    { name: '床', selected: false },
-                    { name: '床头柜', selected: false },
-                    { name: '床垫', selected: false },
-                    { name: '餐桌', selected: false },
-                    { name: '休闲椅', selected: false },
-                ],
+                category: ['沙发', '茶几', '电视柜', '鞋柜', '餐椅', '餐边柜', '床', '床头柜', '床垫', '餐桌', '休闲椅'],
                 // 第三个筛选内容 —— 空间
-                space: [
-                    { name: '客厅', selected: true },
-                    { name: '餐厅', selected: false },
-                    { name: '卧室', selected: false },
-                    { name: '书房', selected: false },
-                    { name: '饰品', selected: false },
-                    { name: '厨房', selected: false },
-                    { name: '阳台', selected: false },
-                ],
-                // 选择品类
-                selectCategory: [],
-                // 选择空间
-                selectSpace: [],
+                space: ['客厅', '餐厅', '卧室', '书房', '饰品', '厨房', '阳台'],
                 // 产品
                 product: [
-                    { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                    { name: '凯瑟琳', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                    { name: '客厅现代简约真皮沙发极简头层牛皮大象耳朵皮艺沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                    { name: '真皮沙发 头层牛皮沙发 客厅简约现代沙发 转角沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    // { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    // { name: '凯瑟琳', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    // { name: '客厅现代简约真皮沙发极简头层牛皮大象耳朵皮艺沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    // { name: '真皮沙发 头层牛皮沙发 客厅简约现代沙发 转角沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
                 ],
                 // 卡片显示
                 cardDisplay: false,
@@ -211,39 +184,135 @@
             };
         },
 
+        mounted() {
+            if (this.searchContent === '' && this.productType === '') {
+                // 默认搜索全部
+                const screenProductVO = {};
+                screenProductVO.name = '';
+                screenProductVO.field = null;
+                screenProductVO.value = null;
+                screenProductVO.sortField = null;
+                screenProductVO.sort = null;
+                getScreenProduct(screenProductVO).then((res) => {
+                    this.product = res.data;
+                });
+            }
+        },
+
         onLoad(optioon) {
             // 搜索内容
             this.searchContent = optioon.searchContent;
-            console.log(this.searchContent);
+            if (this.searchContent !== '') {
+                const screenProductVO = {};
+                screenProductVO.name = this.searchContent;
+                screenProductVO.field = null;
+                screenProductVO.value = null;
+                screenProductVO.sortField = null;
+                screenProductVO.sort = null;
+                getScreenProduct(screenProductVO).then((res) => {
+                    this.product = res.data;
+                });
+            }
+            this.productType = optioon.type;
+            this.productValue = optioon.value;
+            if (this.productType !== '') {
+                const screenProductVO = {};
+                screenProductVO.name = null;
+                screenProductVO.field = this.productType;
+                screenProductVO.value = this.productValue;
+                screenProductVO.sortField = null;
+                screenProductVO.sort = null;
+                getScreenProduct(screenProductVO).then((res) => {
+                    this.product = res.data;
+                });
+            }
         },
 
         methods: {
             // 回车搜索
             enterSearch() {
-                if (this.searchContent !== '') {
-                    console.log(this.searchContent);
-                }
+                const screenProductVO = {};
+                screenProductVO.name = this.searchContent;
+                screenProductVO.field = null;
+                screenProductVO.value = null;
+                screenProductVO.sortField = null;
+                screenProductVO.sort = null;
+                getScreenProduct(screenProductVO).then((res) => {
+                    this.product = res.data;
+                });
             },
 
-            // 筛选内容
-            clickFilterContent(index, type) {
-                if (type) {
-                    this.selectCategory = [];
-                    this.category[index].selected = !this.category[index].selected;
-                    this.category.forEach((element) => {
-                        if (element.selected) {
-                            this.selectCategory.push(element.name);
-                        }
+            // 查看产品详情
+            productInfo(productId) {
+                uni.navigateTo({
+                    url: `../product-details/productDetails?product_id=${productId}`,
+                });
+            },
+
+            // 第一个筛选
+            firstContentInfo(item, value) {
+                if (this.firstContent === item) {
+                    this.firstContent = '';
+                    screenProductVO.name = this.searchContent;
+                    screenProductVO.field = null;
+                    screenProductVO.value = null;
+                    screenProductVO.sortField = null;
+                    screenProductVO.sort = null;
+                    getScreenProduct(screenProductVO).then((res) => {
+                        this.product = res.data;
                     });
                 } else {
-                    this.selectSpace = [];
-                    this.space[index].selected = !this.space[index].selected;
-                    this.space.forEach((element) => {
-                        if (element.selected) {
-                            this.selectSpace.push(element.name);
-                        }
+                    this.firstContent = item;
+                    const screenProductVO = {};
+                    screenProductVO.name = this.searchContent;
+                    screenProductVO.field = null;
+                    screenProductVO.value = null;
+                    screenProductVO.sortField = value;
+                    screenProductVO.sort = 0;
+                    getScreenProduct(screenProductVO).then((res) => {
+                        this.product = res.data;
                     });
                 }
+                this.firstScreenContent = this.secondContent = this.thirdContent = false;
+            },
+
+            // 价格筛选
+            priceProduct(sort) {
+                const screenProductVO = {};
+                screenProductVO.name = this.searchContent;
+                screenProductVO.field = null;
+                screenProductVO.value = null;
+                screenProductVO.sortField = 'productInfo.price';
+                screenProductVO.sort = sort;
+                getScreenProduct(screenProductVO).then((res) => {
+                    this.product = res.data;
+                });
+                this.firstScreenContent = this.firstContent = this.secondContent = this.thirdContent = false;
+            },
+
+            // 第二三个筛选内容
+            secondContentInfo(type) {
+                const screenProductVO = {};
+                screenProductVO.name = this.searchContent == null ? '' : this.searchContent;
+                screenProductVO.sort = 0;
+                if (type) {
+                    screenProductVO.field = 'style';
+                    screenProductVO.value = this.secondContent;
+                } else {
+                    let isOK = false;
+                    this.category.forEach((element) => {
+                        if (this.thirdContent === element) {
+                            isOK = true;
+                        }
+                    });
+                    screenProductVO.field = isOK ? 'category' : 'space';
+                    screenProductVO.value = this.thirdContent;
+                }
+                screenProductVO.sortField = 'productInf.heat';
+                getScreenProduct(screenProductVO).then((res) => {
+                    this.product = res.data;
+                });
+                this.secondScreenContent = this.thirdScreenContent = this.firstContent = false;
             },
 
             // 筛选显示

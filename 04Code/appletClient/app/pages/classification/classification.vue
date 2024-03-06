@@ -9,7 +9,7 @@
         <!-- 导航 -->
         <view class="nav">
             <scroll-view class="scroll" scrollTop="100" scrollX="true" scrollLeft="0" @scroll="scroll">
-                <view v-for="(item, index) in nav" :key="index" class="nav-item uni-column uni-flex">
+                <view v-for="(item, index) in nav" :key="index" class="nav-item uni-column uni-flex" @click="searchFor('space', item.name)">
                     <view class="flex-item flex-item-V">
                         <image :src="item.image" :mode="item.mode"></image>
                     </view>
@@ -29,7 +29,7 @@
                 <uni-section title="品类" type="line" padding>
                     <uni-grid :column="3" :showBorder="false" highlight="false">
                         <uni-grid-item v-for="(item, index) in category" :key="index" class="grid-item">
-                            <view class="grid-item-box">
+                            <view class="grid-item-box" @click="searchFor('category', item.name)">
                                 <image :src="item.image" mode="widthFix"></image>
                                 <text class="text">{{ item.name }}</text>
                             </view>
@@ -110,6 +110,13 @@
         },
 
         methods: {
+            // 前往搜索
+            searchFor(type, value) {
+                return uni.navigateTo({
+                    url: `/pages/search/search-index?type=${type}&value=${value}`,
+                });
+            },
+
             scroll(e) {
                 this.old.scrollTop = e.detail.scrollTop;
             },

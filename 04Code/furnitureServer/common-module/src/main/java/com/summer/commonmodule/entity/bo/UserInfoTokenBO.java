@@ -1,4 +1,4 @@
-package com.summer.securitymodule.entity.bo;
+package com.summer.commonmodule.entity.bo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

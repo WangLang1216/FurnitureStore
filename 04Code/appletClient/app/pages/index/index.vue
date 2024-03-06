@@ -20,7 +20,7 @@
         <!-- 导航 -->
         <view class="nav">
             <scroll-view class="scroll" scrollTop="100" scrollX="true" scrollLeft="0" @scroll="scroll">
-                <view v-for="(item, index) in nav" :key="index" class="nav-item uni-column uni-flex">
+                <view v-for="(item, index) in nav" :key="index" class="nav-item uni-column uni-flex" @click="searchFor('category', item.title)">
                     <view class="flex-item flex-item-V">
                         <image :src="item.icon" mode="heightFix"></image>
                     </view>
@@ -45,7 +45,7 @@
                 </view>
                 <uni-grid :column="2" :showBorder="false" :square="false">
                     <uni-grid-item v-for="(wares, key) in item.commodity" :key="key" :style="getStyle(key)" :index="key">
-                        <view class="info" @click="detail(wares.id)">
+                        <view class="info" @click="detail(wares.productId)">
                             <view>
                                 <image :src="wares.image" mode="heightFix"></image>
                             </view>
@@ -73,6 +73,8 @@
 </template>
 
 <script>
+    import { geIndexData } from '@/api/browseData.js';
+
     import search from '../search/search.vue';
     import bottomNavigation from '../navigation/bottomNavigation.vue';
 
@@ -112,47 +114,63 @@
                 },
                 // 数据
                 data: [
-                    {
-                        title: '松柏爆款沙发',
-                        commodity: [
-                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                        ],
-                    },
-                    {
-                        title: '松柏爆推大床',
-                        commodity: [
-                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                        ],
-                    },
-                    {
-                        title: '爆款餐桌椅',
-                        commodity: [
-                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                            { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                        ],
-                    },
+                    // {
+                    //     title: '松柏爆款沙发',
+                    //     commodity: [
+                    //         { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    //         { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    //         { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    //         { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    //         { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    //         { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    //         { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    //     ],
+                    // },
+                    // {
+                    //     title: '松柏爆推大床',
+                    //     commodity: [
+                    //         { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    //         { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    //         { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    //         { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    //         { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    //         { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    //     ],
+                    // },
+                    // {
+                    //     title: '爆款餐桌椅',
+                    //     commodity: [
+                    //         { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    //         { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    //         { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    //         { id: 1, name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    //     ],
+                    // },
                 ],
             };
         },
 
+        mounted() {
+            // 查询主页数据
+            geIndexData().then((res) => {
+                if (res.code === 200) {
+                    this.data = res.data;
+                }
+            });
+        },
+
         methods: {
             // 查看商品详情
-            detail(id) {
+            detail(productId) {
                 uni.navigateTo({
-                    url: '../product-details/productDetails',
+                    url: `../product-details/productDetails?product_id=${productId}`,
+                });
+            },
+
+            // 前往搜索
+            searchFor(type, value) {
+                return uni.navigateTo({
+                    url: `/pages/search/search-index?type=${type}&value=${value}`,
                 });
             },
 

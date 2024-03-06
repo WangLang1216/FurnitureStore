@@ -1,7 +1,7 @@
 package com.summer.securitymodule.service;
 
-import com.summer.securitymodule.entity.bo.TokenInfoBO;
-import com.summer.securitymodule.entity.bo.UserInfoTokenBO;
+import com.summer.commonmodule.entity.bo.TokenInfoBO;
+import com.summer.commonmodule.entity.bo.UserInfoTokenBO;
 import com.summer.securitymodule.entity.vo.TokenInfoVO;
 
 /**

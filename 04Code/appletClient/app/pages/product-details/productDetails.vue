@@ -4,13 +4,13 @@
         <!-- 轮播图 -->
         <view class="carousel">
             <uni-swiper-dot
-                class="uni-swiper-dot-box" :info="commodity.images" :current="current" mode="nav" :dotsStyles="dotsStyle"
+                class="uni-swiper-dot-box" :info="commodity.carouselImages" :current="current" mode="nav" :dotsStyles="dotsStyle"
                 field="content" @clickItem="clickItem"
             >
                 <swiper class="swiper" autoplay="true" interval="3500" :current="swiperDotIndex" @change="change">
-                    <swiper-item v-for="(item, index) in commodity.images" :key="index">
+                    <swiper-item v-for="(item, index) in commodity.carouselImages" :key="index">
                         <view class="swiper-item">
-                            <image :src="item.url" mode="aspectFit"></image>
+                            <image :src="item.image" mode="aspectFit"></image>
                         </view>
                     </swiper-item>
                 </swiper>
@@ -41,10 +41,10 @@
             <view>
                 <view @click="collect()">
                     <uni-icons
-                        :type="commodity.collect === 0 ? 'star' : 'star-filled'" size="28"
-                        :color="commodity.collect === 0 ? '#6a6a6a' : '#6c2324'"
+                        :type="collectState ? 'star-filled' : 'star'" size="28"
+                        :color="collectState ? '#6c2324' : '#6a6a6a'"
                     ></uni-icons>
-                    <text>{{ commodity.collect === 0 ? '收藏' : '已收藏' }}</text>
+                    <text>{{ collectState ? '已收藏' : '收藏' }}</text>
                 </view>
                 <view>
                     <uni-icons type="personadd" size="28"></uni-icons>
@@ -137,7 +137,7 @@
             </view>
             <view>
                 <view v-for="(item, index) in commodity.physicalImages" :key="index">
-                    <image :src="item" mode="aspectFill"></image>
+                    <image :src="item.image" mode="aspectFill"></image>
                 </view>
             </view>
         </view>
@@ -148,7 +148,7 @@
             </view>
             <view>
                 <view v-for="(item, index) in commodity.detailsImages" :key="index">
-                    <image :src="item" mode="widthFix"></image>
+                    <image :src="item.image" mode="widthFix"></image>
                 </view>
             </view>
         </view>
@@ -181,7 +181,7 @@
                         <view class="scrollOuter">
                             <text>尺寸</text>
                             <view>
-                                <view v-for="(item, index) in commodity.size" :key="index" :style="sizeStyle(item)" @click="selectSize(item)">
+                                <view v-for="(item, index) in specs.size" :key="index" :style="sizeStyle(item)" @click="selectSize(item)">
                                     <text>{{ item }}</text>
                                 </view>
                             </view>
@@ -189,7 +189,7 @@
                         <view class="scrollOuter">
                             <text>颜色</text>
                             <view>
-                                <view v-for="(item, index) in commodity.colour" :key="index" :style="colourStyle(item)" @click="selectColour(item)">
+                                <view v-for="(item, index) in specs.colour" :key="index" :style="colourStyle(item)" @click="selectColour(item)">
                                     <text>{{ item }}</text>
                                 </view>
                             </view>
@@ -197,7 +197,7 @@
                         <view class="scrollOuter">
                             <text>材质</text>
                             <view>
-                                <view v-for="(item, index) in commodity.materialType" :key="index" :style="materialTypeStyle(item)" @click="selectMaterialType(item)">
+                                <view v-for="(item, index) in specs.materialType" :key="index" :style="materialTypeStyle(item)" @click="selectMaterialType(item)">
                                     <text>{{ item }}</text>
                                 </view>
                             </view>
@@ -214,11 +214,11 @@
                         <button @click="quantityChange(true)">+</button>
                     </view>
                 </view>
-                <view>
-                    <view>
+                <view style="z-index: 99;">
+                    <view @click="addShoppingInfo(false)">
                         <text>加入购物车</text>
                     </view>
-                    <view>
+                    <view @click="addShoppingInfo(true)">
                         <text>立即抢购</text>
                     </view>
                 </view>
@@ -241,6 +241,9 @@
 </template>
 
 <script>
+    import { getProductInfo, getProductSpecs, updateProductHeat } from '@/api/browseData.js';
+    import { addShopping, getUserCollectSate, updateUserCollectSate, addLikeWeight } from '@/api/user.js';
+
     import recommend from '../recommend/recommend.vue';
     export default {
         components: {
@@ -249,88 +252,93 @@
 
         data() {
             return {
+                productId: '',
+                // 收藏状态
+                collectState: false,
                 // 商品信息
                 commodity: {
-                    id: 1,
-                    name: '现代意式网红北欧客厅转角简约组合直排纳米科技布沙发现代小户型奢华',
-                    price: 6750,
-                    sold: 0,
-                    heat: 1286,
-                    introduce: '1.科技布+高回弹海绵+实木框架 2.沙发图颜色为3D效果图跟实物有色差问题，请以实物颜色为准，请选对应面料下单。 可定制尺寸，具体请咨询客服。',
-                    identifier: 'J140-X04-109-2072#',
-                    factoryNumber: 'J140',
-                    producer: '广东佛山',
-                    materialQuality: '实木框架',
-                    filler: '其他',
-                    piece: '1件',
-                    technology: '其他',
-                    installationMethod: '组装',
-                    style: '现代简约',
-                    space: '客厅',
-                    term: '15天',
-                    service: '包送、包安装',
-                    collect: 0,
-                    size: [
-                        '三人位2400*980*850',
-                        '四人位2800*980*850',
-                        '转角沙发右贵妃3500*980*1400*850',
-                        '转角沙发左贵妃3500*980*1400*850',
-                    ],
-                    colour: [
-                        '下单备注颜色',
-                        'RX197-4',
-                    ],
-                    materialType: [
-                        '改科技布',
-                        '绒布',
-                    ],
-                    images: [
-                        { url: '../../static/images/commodity/carousel1.jpg', content: '' },
-                        { url: '../../static/images/commodity/carousel2.jpg', content: '' },
-                        { url: '../../static/images/commodity/carousel3.jpg', content: '' },
-                        { url: '../../static/images/commodity/carousel4.jpg', content: '' },
-                        { url: '../../static/images/commodity/carousel5.jpg', content: '' },
-                    ],
-                    physicalImages: [
-                        '../../static/images/commodity/physical-image1.jpg',
-                        '../../static/images/commodity/physical-image2.jpg',
-                        '../../static/images/commodity/physical-image3.jpg',
-                    ],
-                    sizeImages: [
-                        '../../static/images/commodity/select1.jpg',
-                        '../../static/images/commodity/select2.jpg',
-                        '../../static/images/commodity/select3.jpg',
-                        '../../static/images/commodity/select4.jpg',
-                    ],
-                    detailsImages: [
-                        '../../static/images/commodity/details-1.jpg',
-                        '../../static/images/commodity/details-2.jpg',
-                        '../../static/images/commodity/details-3.jpg',
-                        '../../static/images/commodity/details-4.jpg',
-                        '../../static/images/commodity/details-5.jpg',
-                        '../../static/images/commodity/details-6.jpg',
-                        '../../static/images/commodity/details-7.jpg',
-                        '../../static/images/commodity/details-8.jpg',
-                        '../../static/images/commodity/details-9.jpg',
-                        '../../static/images/commodity/details-10.jpg',
-                        '../../static/images/commodity/details-11.jpg',
-                        '../../static/images/commodity/details-12.jpg',
-                        '../../static/images/commodity/details-13.jpg',
-                        '../../static/images/commodity/details-14.jpg',
-                        '../../static/images/commodity/details-15.jpg',
-                        '../../static/images/commodity/details-16.jpg',
-                        '../../static/images/commodity/details-17.jpg',
-                        '../../static/images/commodity/details-18.jpg',
-                        '../../static/images/commodity/details-19.jpg',
-                        '../../static/images/commodity/details-20.jpg',
-                        '../../static/images/commodity/details-21.jpg',
-                        '../../static/images/commodity/details-22.jpg',
-                        '../../static/images/commodity/details-23.jpg',
-                        '../../static/images/commodity/details-24.jpg',
-                        '../../static/images/commodity/details-25.jpg',
-                        '../../static/images/commodity/details-26.jpg',
-                        '../../static/images/commodity/details-27.jpg',
-                    ],
+                    // id: 1,
+                    // name: '现代意式网红北欧客厅转角简约组合直排纳米科技布沙发现代小户型奢华',
+                    // price: 6750,
+                    // sold: 0,
+                    // heat: 1286,
+                    // introduce: '1.科技布+高回弹海绵+实木框架 2.沙发图颜色为3D效果图跟实物有色差问题，请以实物颜色为准，请选对应面料下单。 可定制尺寸，具体请咨询客服。',
+                    // identifier: 'J140-X04-109-2072#',
+                    // factoryNumber: 'J140',
+                    // producer: '广东佛山',
+                    // materialQuality: '实木框架',
+                    // filler: '其他',
+                    // piece: '1件',
+                    // technology: '其他',
+                    // installationMethod: '组装',
+                    // style: '现代简约',
+                    // space: '客厅',
+                    // term: '15天',
+                    // service: '包送、包安装',
+                    // images: [
+                    //     { url: '../../static/images/commodity/carousel1.jpg', content: '' },
+                    //     { url: '../../static/images/commodity/carousel2.jpg', content: '' },
+                    //     { url: '../../static/images/commodity/carousel3.jpg', content: '' },
+                    //     { url: '../../static/images/commodity/carousel4.jpg', content: '' },
+                    //     { url: '../../static/images/commodity/carousel5.jpg', content: '' },
+                    // ],
+                    // physicalImages: [
+                    //     '../../static/images/commodity/physical-image1.jpg',
+                    //     '../../static/images/commodity/physical-image2.jpg',
+                    //     '../../static/images/commodity/physical-image3.jpg',
+                    // ],
+                    // detailsImages: [
+                    //     '../../static/images/commodity/details-1.jpg',
+                    //     '../../static/images/commodity/details-2.jpg',
+                    //     '../../static/images/commodity/details-3.jpg',
+                    //     '../../static/images/commodity/details-4.jpg',
+                    //     '../../static/images/commodity/details-5.jpg',
+                    //     '../../static/images/commodity/details-6.jpg',
+                    //     '../../static/images/commodity/details-7.jpg',
+                    //     '../../static/images/commodity/details-8.jpg',
+                    //     '../../static/images/commodity/details-9.jpg',
+                    //     '../../static/images/commodity/details-10.jpg',
+                    //     '../../static/images/commodity/details-11.jpg',
+                    //     '../../static/images/commodity/details-12.jpg',
+                    //     '../../static/images/commodity/details-13.jpg',
+                    //     '../../static/images/commodity/details-14.jpg',
+                    //     '../../static/images/commodity/details-15.jpg',
+                    //     '../../static/images/commodity/details-16.jpg',
+                    //     '../../static/images/commodity/details-17.jpg',
+                    //     '../../static/images/commodity/details-18.jpg',
+                    //     '../../static/images/commodity/details-19.jpg',
+                    //     '../../static/images/commodity/details-20.jpg',
+                    //     '../../static/images/commodity/details-21.jpg',
+                    //     '../../static/images/commodity/details-22.jpg',
+                    //     '../../static/images/commodity/details-23.jpg',
+                    //     '../../static/images/commodity/details-24.jpg',
+                    //     '../../static/images/commodity/details-25.jpg',
+                    //     '../../static/images/commodity/details-26.jpg',
+                    //     '../../static/images/commodity/details-27.jpg',
+                    // ],
+                },
+                // 规格信息
+                specs: {
+                    // sizeImages: [
+                    //     '../../static/images/commodity/select1.jpg',
+                    //     '../../static/images/commodity/select2.jpg',
+                    //     '../../static/images/commodity/select3.jpg',
+                    //     '../../static/images/commodity/select4.jpg',
+                    // ],
+                    // size: [
+                    //     '三人位2400*980*850',
+                    //     '四人位2800*980*850',
+                    //     '转角沙发右贵妃3500*980*1400*850',
+                    //     '转角沙发左贵妃3500*980*1400*850',
+                    // ],
+                    // colour: [
+                    //     '下单备注颜色',
+                    //     'RX197-4',
+                    // ],
+                    // materialType: [
+                    //     '改科技布',
+                    //     '绒布',
+                    // ],
                 },
                 // 选购数量
                 purchaseQuantity: 1,
@@ -369,30 +377,155 @@
             };
         },
 
+        onLoad(option) {
+            this.productId = option.product_id;
+            console.log(this.productId);
+        },
+
         mounted() {
-            // 导航栏标题
-            uni.setNavigationBarTitle({
-                title: this.commodity.name,
+            // 查询产品信息
+            getProductInfo(this.productId).then((res) => {
+                if (res.code === 200) {
+                    this.commodity = res.data;
+                    // 导航栏标题
+                    uni.setNavigationBarTitle({
+                        title: this.commodity.name,
+                    });
+                }
             });
+            // 获取产品规格信息
+            getProductSpecs(this.productId).then((res) => {
+                if (res.code === 200) {
+                    this.specs = res.data;
+                }
+            });
+            // 增加热度
+            updateProductHeat(this.productId, 10);
+            // 查询收藏信息
+            if (uni.getStorageSync('accessToken')) {
+                getUserCollectSate(this.productId).then((res) => {
+                    if (res.code === 200) {
+                        this.collectState = res.data;
+                    }
+                });
+								addLikeWeight(this.productId);
+            } else {
+                this.collectState = false;
+            }
         },
 
         methods: {
             // 收藏
             collect() {
-                if (this.commodity.collect === 0) {
-                    this.commodity.collect = 1;
-                } else {
-                    this.commodity.collect = 0;
+                if (!uni.getStorageSync('accessToken')) {
+                    return uni.showModal({
+                        icon: 'error',
+                        title: '请登录后收藏',
+                        showCancel: true,
+                        success(res) {
+                            if (res.confirm) {
+                                setTimeout(() => {
+                                    uni.navigateTo({
+                                        url: '/pages/user/login',
+                                    });
+                                }, 1000);
+                            }
+                        },
+                    });
+                }
+                updateUserCollectSate(this.productId).then((res) => {
+                    if (res.code === 200) {
+                        this.collectState = !this.collectState;
+                    } else {
+                        uni.showToast({
+                            title: res.msg,
+                            duration: 2000,
+                        });
+                    }
+                });
+                updateProductHeat(this.productId, 30);
+            },
+
+            // 新增购物车信息
+            addShoppingInfo(type) {
+                if (!uni.getStorageSync('accessToken')) {
+                    return uni.showModal({
+                        icon: 'error',
+                        title: '请先进行登录',
+                        showCancel: true,
+                        success(res) {
+                            if (res.confirm) {
+                                setTimeout(() => {
+                                    uni.navigateTo({
+                                        url: '/pages/user/login',
+                                    });
+                                }, 1000);
+                            }
+                        },
+                    });
+                }
+                if (this.selectPurchase.size === '') {
+                    return uni.showToast({
+                        icon: 'none',
+                        title: '请选择尺寸',
+                        duration: 2000,
+                    });
+                }
+                if (this.selectPurchase.colour === '') {
+                    return uni.showToast({
+                        icon: 'none',
+                        title: '请选择颜色',
+                        duration: 2000,
+                    });
+                }
+                if (this.selectPurchase.materialType === '') {
+                    return uni.showToast({
+                        icon: 'none',
+                        title: '请选择材质',
+                        duration: 2000,
+                    });
+                }
+                const shopping = {};
+                shopping.productId = this.productId;
+                shopping.productName = this.commodity.name;
+                shopping.productSize = this.selectPurchase.size;
+                shopping.productColour = this.selectPurchase.colour;
+                shopping.materialType = this.selectPurchase.materialType;
+                shopping.image = this.specs.sizeImages[this.specs.size.indexOf(this.selectPurchase.size)];
+                shopping.quantity = this.purchaseQuantity;
+                shopping.price = this.commodity.price;
+                addShopping(shopping).then((res) => {
+                    if (res.code === 200) {
+                        uni.showToast({
+                            icon: 'success',
+                            title: '加入成功',
+                            duration: 3000,
+                        });
+                    } else {
+                        uni.showToast({
+                            title: '加入失败',
+                            duration: 2000,
+                        });
+                    }
+                    this.$refs.popup.close();
+                });
+                updateProductHeat(this.productId, 50);
+                if (type) {
+                    return setTimeout(() => {
+                        uni.reLaunch({
+                            url: '/pages/shopping-trolley/shoppingTrolley',
+                        });
+                    }, 1000);
                 }
             },
 
             // 产品选择图片
             selectImage() {
                 if (this.selectPurchase.size !== '') {
-                    const index = this.commodity.size.indexOf(this.selectPurchase.size);
-                    return this.commodity.sizeImages[index];
+                    const index = this.specs.size.indexOf(this.selectPurchase.size);
+                    return this.specs.sizeImages[index];
                 } else {
-                    return this.commodity.images[0].url;
+                    return this.commodity.carouselImages[0].image;
                 }
             },
 

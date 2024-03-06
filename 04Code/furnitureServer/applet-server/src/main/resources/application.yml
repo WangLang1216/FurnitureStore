@@ -16,16 +16,6 @@ spring:
     password: 123456
     timeout: 10s
 
-#jwt:
-#  #JWT存储的请求头
-#  tokenHeader: Authorization
-#  #JWT加解密使用的密钥
-#  sign: pengmq-secret
-#  #jwtToken的默认有效时间 单位分钟
-#  expireTime: 30
-#  #JWT负载中拿到开头
-#  tokenHead: 'Bearer '
-
 # 公钥和私钥
 encrypt:
   privateKey: MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAJlO0vJ4KAAxrbZUBV9hc+H9NniaZf2Sezekjiu3O5+qaTbUHt2n5iMX3hiOh1tKk6exkJaDAzm6rb2FZOb+sGjsadakY+aS2bHwPtehVzt9OShDlUVY5sZR2wy82+HIhZyucTmGdFVuLU68fB6mipBV6Jf520Mzhr9DgJUwqxj1AgMBAAECgYA4WkscKaK6f4hVDwlyiAXqugL9zfNThDaau3gvBYl7JU7Lgqld3MuxdqKC8FE882rXJ2P4j2vuGnqmwZPXfSMmuokbOdpOm7jb3TFpXgngkmb4Kv8Pj/2bx5UHj/ULpU7d9//pvvViJIFmHNKhYfcXMxV2m4/Zh5HBMUzA7Re2gQJBAOsN5+k6GKEhklkmtJj7wrhIfDBKK+NA7YwaB8iRnCOkY0wdVmo5vaTX5MBecxaNw1/mFMf6xlJYxqC/TIGbhZECQQCm+BtVENkJziWE+P6LxsvN5I0xtysRUXjn69VQe19FreeBgg2Ag0TFXTUf652dHgH3Nteadg8srhnt0stlMpslAkAMjKqEFjj4aV1x6xIbVN25jw0qWttq/61vHHir6bJHaOBwUOSrOTf51Bj/eEt2uczjktorLyVlgh3guTXxeYcxAkBH/ZfDULVTvfd9YuJVoAxFpPKf6er+15L65DsgLWGBqJ61vz5VF8QyGKMMNUnK8aJFVfcWGSsnx5VUblvWMUClAkEAwcZAJZXmHPVYVy8QS9gav62iheDOB8Om+ri4T6KtWbDvWIPl7wWlIcU8R4IO8/P8ct3IQdOLVAinp9e1qY01kg==

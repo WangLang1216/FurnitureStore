@@ -1,11 +1,10 @@
-package com.summer.securitymodule.entity.bo;
+package com.summer.commonmodule.entity.bo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * Token信息类

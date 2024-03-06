@@ -4,7 +4,7 @@
         <uni-section title="猜你喜好" type="line" padding>
             <uni-grid :column="2" :showBorder="false" highlight="false">
                 <uni-grid-item v-for="(item, index) in recommend" :key="index" class="grid-item">
-                    <view class="grid-item-box">
+                    <view class="grid-item-box" @click="detail(item.productId)">
                         <view>
                             <image :src="item.image" mode="widthFix"></image>
                         </view>
@@ -27,20 +27,33 @@
 </template>
 
 <script>
+    import { getUserLikeProduct } from '@/api/browseData.js';
     export default {
         data() {
             return {
                 recommend: [
-                    { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                    { name: '凯瑟琳', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                    { name: '客厅现代简约真皮沙发极简头层牛皮大象耳朵皮艺沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
-                    { name: '真皮沙发 头层牛皮沙发 客厅简约现代沙发 转角沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    // { name: '意式极简磨砂质感沙发科技布真皮沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    // { name: '凯瑟琳', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    // { name: '客厅现代简约真皮沙发极简头层牛皮大象耳朵皮艺沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
+                    // { name: '真皮沙发 头层牛皮沙发 客厅简约现代沙发 转角沙发', price: '4513', sold: '11', image: '/static/images/sofa_1.jpg' },
                 ],
             };
         },
 
-        methods: {
+        mounted() {
+            const token = uni.getStorageSync('accessToken');
+            getUserLikeProduct(token).then((res) => {
+                this.recommend = res.data;
+            });
+        },
 
+        methods: {
+            // 查看商品详情
+            detail(productId) {
+                uni.navigateTo({
+                    url: `../product-details/productDetails?product_id=${productId}`,
+                });
+            },
         },
     };
 </script>

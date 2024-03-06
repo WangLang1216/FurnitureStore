@@ -5,11 +5,10 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.summer.commonmodule.entity.bo.UserInfoTokenBO;
 import com.summer.commonmodule.exception.BusinessException;
 import com.summer.commonmodule.response.ResponseEnum;
-import com.summer.securitymodule.entity.bo.UserInfoTokenBO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -20,7 +19,6 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * JWT工具类
