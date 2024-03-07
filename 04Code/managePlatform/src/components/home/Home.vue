@@ -2,11 +2,11 @@
   <div class="home">
     <el-containers>
       <el-header>
-        <Head/>
+        <Head></Head>
       </el-header>
       <el-container>
         <el-aside width="201px">
-          <Menu/>
+          <Menu></Menu>
         </el-aside>
         <el-container>
           <el-main>

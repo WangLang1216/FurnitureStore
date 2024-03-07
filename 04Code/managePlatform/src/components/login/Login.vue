@@ -25,7 +25,7 @@
       <a href="#" @click="loginType = !loginType">{{ loginType ? '使用手机号登录' : '使用账号登录' }}</a>
       <el-button type="primary" @click="login()">登录</el-button>
     </div>
-    <span>Design and Implementation of a Furniture Store System Based on WeChat Mini Program</span>
+    <span>Design and Implementation of a Furniture Store System Based on WeChat Mini Program.</span>
   </div>
 </template>
 

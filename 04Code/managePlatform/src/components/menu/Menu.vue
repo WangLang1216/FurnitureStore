@@ -1,7 +1,7 @@
 <template>
   <!-- 右侧菜单 -->
   <div class="menu">
-    <el-menu default-active="1-4-1" class="el-menu-vertical-demo" unique-opened="true" router="true">
+    <el-menu default-active="1-4-1" class="el-menu-vertical-demo" :unique-opened="true" :router="true">
       <el-menu-item index="/home/home-page">
         <i class="el-icon-s-data"></i>
         <span slot="title">首页</span>
@@ -13,7 +13,7 @@
         </template>
         <el-menu-item-group>
           <el-menu-item index="/home/add-product">新增/修改</el-menu-item>
-          <el-menu-item index="1-2">查询信息</el-menu-item>
+          <el-menu-item index="/home/product-info">查询信息</el-menu-item>
         </el-menu-item-group>
       </el-submenu>
       <el-menu-item index="3">

@@ -65,6 +65,7 @@
         </el-col>
       </el-row>
     </div>
+    <span style="position: fixed;bottom: 2%;margin-left: 18%;color: #43b597;font-family: Arial;font-size: 12px;letter-spacing: 2px;">Design and Implementation of a Furniture Store System Based on WeChat Mini Program.</span>
   </div>
 </template>
 
