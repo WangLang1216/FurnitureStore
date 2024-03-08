@@ -6,10 +6,10 @@
       <h3>&nbsp;家具店铺管理平台</h3>
     </div>
     <div>
-      <el-dropdown placement="top">
+      <el-dropdown placement="top" @command="logout">
         <span class="el-dropdown-link">{{ username }}</span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>退出登录</el-dropdown-item>
+          <el-dropdown-item command="a">退出登录</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -25,7 +25,11 @@ export default {
     }
   },
   methods: {
-    
+    // 退出登录
+    logout() {
+      
+      this.$router.push({name: 'login'});
+    }
   }
 }
 </script>

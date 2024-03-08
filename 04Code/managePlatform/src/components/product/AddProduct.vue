@@ -243,7 +243,7 @@ export default {
   .addProduct {
     width: 96%;
     margin: 1%;
-    padding: 1%;
+    padding: 1% 2% 2% 2%;
     border-radius: 3px;
     background: white;
   }

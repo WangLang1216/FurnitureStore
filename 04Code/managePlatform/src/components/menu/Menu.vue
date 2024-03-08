@@ -16,15 +16,15 @@
           <el-menu-item index="/home/product-info">查询信息</el-menu-item>
         </el-menu-item-group>
       </el-submenu>
-      <el-menu-item index="3">
+      <el-menu-item index="/home/order">
         <i class="el-icon-s-goods"></i>
         <span slot="title">订单管理</span>
       </el-menu-item>
-      <el-menu-item index="4">
+      <el-menu-item index="/home/rule-data">
         <i class="el-icon-s-tools"></i>
         <span slot="title">规则管理</span>
       </el-menu-item>
-      <el-menu-item index="5">
+      <el-menu-item index="/home/user">
         <i class="el-icon-s-custom"></i>
         <span slot="title">用户管理</span>
       </el-menu-item>
@@ -35,11 +35,6 @@
 <script>
 export default {
   name: 'Menu',
-  data () {
-    return {
-      isAdmin: true,
-    }
-  }
 }
 </script>
 

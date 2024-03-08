@@ -81,7 +81,7 @@ public class OrderInfo extends BaseModel implements Serializable {
     private Integer price;
 
     /**
-     * 订单状态，0为待付款，1为待确定，2为待收货，-1为退货/售后
+     * 订单状态，0为待付款，1为待确定，2为待收货，3为待完成，-1为退货/售后
      */
     @Field("state")
     private Integer state;
