@@ -2,6 +2,7 @@ package com.summer.appletserver.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.text.StrPool;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.summer.appletserver.entity.vo.OrderInfoVO;
@@ -189,9 +190,9 @@ public class UserProductServiceImpl implements UserProductService {
         }
 
         // 删除
-        long delCount = shoppingInfoMapper.deleteShoppingByIds(shoppingIds);
+        long delCount = shoppingInfoMapper.deleteShoppingByIds(shoppingIds.split(StrPool.COMMA));
 
-        if ((int) delCount != shoppingIds.split(StrUtil.COMMA).length) {
+        if ((int) delCount != shoppingIds.split(StrPool.COMMA).length) {
             RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, "已删除" + delCount, logger);
         }
 
@@ -206,7 +207,7 @@ public class UserProductServiceImpl implements UserProductService {
         List<OrderInfo> orderInfos = new ArrayList<>();
 
         // 查询购物车数据
-        List<ShoppingInfo> shoppingInfos = shoppingInfoMapper.queryShoppingListById(orderInfoVO.getShoppingIds());
+        List<ShoppingInfo> shoppingInfos = shoppingInfoMapper.queryShoppingListById(orderInfoVO.getShoppingIds().split(StrPool.COMMA));
         if (shoppingInfos.isEmpty()) {
             RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, orderInfoVO.getShoppingIds() + "没有该购物信息", logger);
         }
@@ -223,6 +224,13 @@ public class UserProductServiceImpl implements UserProductService {
                 if (Objects.isNull(info)) {
                     RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, logger);
                 }
+                // 修改产品记录信息
+                ProductRecord productRecord = productRecordMapper.queryProductRecordById(shoppingInfo.getProductId());
+                productRecord.setSold(productRecord.getSold() + shoppingInfo.getQuantity());
+                ProductRecord saveProductRecord = productRecordMapper.saveProductRecord(productRecord);
+                if (Objects.isNull(saveProductRecord)) {
+                    RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, logger);
+                }
             } else {
                 orderInfos.add(orderInfo);
             }
@@ -236,7 +244,7 @@ public class UserProductServiceImpl implements UserProductService {
         }
 
         // 删除购物车信息
-        long delCount = shoppingInfoMapper.deleteShoppingByIds(orderInfoVO.getShoppingIds());
+        long delCount = shoppingInfoMapper.deleteShoppingByIds(orderInfoVO.getShoppingIds().split(StrUtil.COMMA));
         if ((int) delCount != orderInfoVO.getShoppingIds().split(StrUtil.COMMA).length) {
             RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, "已删除" + delCount, logger);
         }
@@ -278,11 +286,21 @@ public class UserProductServiceImpl implements UserProductService {
         }
 
         // 存在则更新
+        boolean isOk = true;
         for (LikeProduct likeProduct : userLike.getLikeProducts()) {
             if (likeProduct.getCategory().equals(productInfo.getCategory())) {
                 likeProduct.setWeight(likeProduct.getWeight() + 1);
+                isOk = false;
                 break;
             }
+        }
+        if (isOk) {
+            LikeProduct likeProduct = new LikeProduct();
+            likeProduct.setCategory(productInfo.getCategory())
+                    .setWeight(1);
+            List<LikeProduct> likeProducts = userLike.getLikeProducts();
+            likeProducts.add(likeProduct);
+            userLike.setLikeProducts(likeProducts);
         }
         userLike.setTotal(userLike.getTotal() + 1);
         UserLike saveUserLike = userLikeMapper.saveUserLike(userLike);

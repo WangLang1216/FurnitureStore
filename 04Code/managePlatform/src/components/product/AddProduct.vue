@@ -6,7 +6,7 @@
         <h4>新增/修改产品信息</h4>
       </el-col>
       <el-col :span="12" style="text-align: right;padding-right: 3%;">
-        <el-button style="width: 20%;" type="success">提交</el-button>
+        <el-button style="width: 20%;" @click="saveProduct()" type="success">提交</el-button>
       </el-col>
     </el-row>
     <!-- 数据 -->    
@@ -127,12 +127,16 @@
 </template>
 
 <script>
+import { Message } from 'element-ui';
+import { addProductInfo, getProductById } from '../../request/api';
 export default {
   name: 'AddProduct',
   data () {
     return {
       // 产品ID
       productId: '',
+      // 产品图片数量
+      imageSize: -1,
       // 产品信息
       product: {
         name: '',
@@ -166,7 +170,93 @@ export default {
       fillerRes: [{ value: "海绵" },{ value: "海绵+羽绒" },{ value: "高密度海绵" },{ value: "其他" }],
     }
   },
+  async mounted () {
+    // 获取url中的产品ID
+    this.productId = this.$route.query.id;
+    if(typeof this.productId != 'undefined') {
+      const res = await getProductById([this.productId]);
+      if (res.code != 200) {
+        this.productId = '';
+        return Message({
+          message: res.message,
+          type: 'error',
+          duration: 2000
+        });
+      }
+      this.product = res.data;
+      this.product.images = [];
+      this.product.carouselImages = [];
+      this.product.physicalImages = [];
+      this.product.detailsImages = [];
+      this.imageSize = this.product.size.split(" ").length;
+    }
+  },
   methods: {
+    // 新增/修改
+    async saveProduct() {
+      if (this.productId != '') {
+        if(this.imageSize != this.product.size.split(" ").length) {
+          if(this.product.images.length != this.product.size.split(" ").length) {
+            return Message({
+              message: '修改尺寸后选购图片数量需一致 请重新选择图片',
+              type: 'error',
+              duration: 3000
+            });
+          }
+        }
+      }
+      let formData = new FormData();
+      for (const file of this.product.images) {  //多个文件全部都放到files
+        if(file) {
+          formData.append('images', file);
+        }
+      }
+      for (const file of this.product.carouselImages) {  //多个文件全部都放到files
+        if(file) {
+          formData.append('carouselImages', file);
+        }
+      }
+      for (const file of this.product.physicalImages) {  //多个文件全部都放到files
+        if(file) {
+          formData.append('physicalImages', file);
+        }
+      }
+      for (const file of this.product.detailsImages) {  //多个文件全部都放到files
+        if(file) {
+          formData.append('detailsImages', file);
+        }
+      }
+      formData.append('productId', this.productId);
+      formData.append('name', this.product.name);
+      formData.append('introduce', this.product.introduce);
+      formData.append('identifier', this.product.identifier);
+      formData.append('producer', this.product.producer);
+      formData.append('materialQuality', this.product.materialQuality);
+      formData.append('filler', this.product.filler);
+      formData.append('style', this.product.style);
+      formData.append('category', this.product.category);
+      formData.append('space', this.product.space);
+      formData.append('price', this.product.price);
+      formData.append('inventory', this.product.inventory);
+      formData.append('size', this.product.size);
+      formData.append('colour', this.product.colour);
+      formData.append('materialType', this.product.materialType);
+      formData.append('opt', this.productId === '' ? true : false);
+
+      const res = await addProductInfo(formData);
+      if(res.code == 200) {
+        this.product = { name: '', introduce: '', identifier: '', producer: '', materialQuality: '', filler: '', style: '', category: '',
+          space: '', price: '', inventory: '', size: '', colour: '', materialType: '', images: [], carouselImages: [], physicalImages: [],detailsImages: []};
+        Message({
+          message: '上传成功',
+          type: 'success',
+          duration: 2000
+        });
+        if (this.productId != '') {
+          return this.$router.push({name: 'product-info'})
+        }
+      }
+    },
     // 图片选择
     imageChange(file, fileList) {
       this.product.images = [];
@@ -174,7 +264,7 @@ export default {
         this.product.images.push(element.raw)
       });
     },
-    carouselImages(file, fileList) {
+    carouselImagesChange(file, fileList) {
       this.product.carouselImages = [];
       fileList.forEach(element => {
         this.product.carouselImages.push(element.raw)
@@ -201,7 +291,7 @@ export default {
       });
     },
     materialQualitySearch(queryString, cb) {
-      var restaurants = this.restaurants;
+      var restaurants = this.materialQualityRes;
       var results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
       // 调用 callback 返回建议列表的数据
       cb(results);
@@ -241,7 +331,7 @@ export default {
 
 <style scoped>
   .addProduct {
-    width: 96%;
+    width: 94%;
     margin: 1%;
     padding: 1% 2% 2% 2%;
     border-radius: 3px;

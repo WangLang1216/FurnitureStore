@@ -5,6 +5,7 @@
 
     <modules>
         <module>applet-server</module>
+        <module>manage-server</module>
         <module>security-module</module>
         <module>common-module</module>
     </modules>

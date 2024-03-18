@@ -2,7 +2,7 @@
  * @Author: 王狼 address
  * @Date: 2024-03-08 10:21:05
  * @LastEditors: 王狼 address
- * @LastEditTime: 2024-03-08 10:23:12
+ * @LastEditTime: 2024-03-15 14:00:07
  * @FilePath: \managePlatform\src\components\order\Order.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -15,7 +15,7 @@
       <el-row :gutter="10">
         <el-col :span="14">
           <span>订单号</span>
-          <el-input size="small" v-model="orderId" placeholder="根据订单号模糊查询"></el-input>
+          <el-input size="small" v-model="orderId" placeholder="根据订单号模糊查询" :clearable="true"></el-input>
           <el-button size="small" @click="queryOrderInfo()" type="primary">查询</el-button>
           <span style="margin-left: 2%;">状态</span>
           <el-select v-model="state" size="small" placeholder="请选择状态">
@@ -37,16 +37,25 @@
           width="55">
         </el-table-column>
         <el-table-column
+          fixed
+          prop="image"
+          label="图片"
+          width="150">
+          <template slot-scope="scope">
+            <img :src="scope.row.image" style="width: 60%;" />
+          </template>
+        </el-table-column>
+        <el-table-column
           prop="createTime"
           label="日期"
           sortable
           :show-overflow-tooltip="true"
-          width="120">
+          width="115">
         </el-table-column>
         <el-table-column
-          prop="username"
+          prop="nickname"
           label="姓名"
-          width="100">
+          width="70">
         </el-table-column>
         <el-table-column
           prop="phone"
@@ -73,6 +82,7 @@
         <el-table-column
           prop="materialType"
           label="产品材质"
+          :show-overflow-tooltip="true"
           width="100">
         </el-table-column>
         <el-table-column
@@ -105,6 +115,7 @@
           prop="state"
           label="状态"
           width="80"
+          fixed="right"
           :filters="[{text: '已下单', value: 1}, {text: '已确定', value: 2}, {text: '已发货', value: 3}, {text: '已完成', value: 4}, {text: '售后中', value: -1} ]"
           :filter-method="filterTag"
           filter-placement="bottom-end">
@@ -128,6 +139,7 @@
 
 <script>
 import { Message } from 'element-ui';
+import { getOrderInfo, updateOrderState } from '../../request/api';
 export default {
   name: 'Order',
   data () {
@@ -139,34 +151,103 @@ export default {
       // 选择订单信息
       orderIds: [],
       // 总数
-      total: 20,
+      total: 1 ,
       // 订单信息
-      orderInfo: [
-        {orderId: "123", userId: '1231', username: '王狼', phone: '17345449129', productName: '123qsqsq', productSize: '1111w331',
-         productColour: '1213131', materialType: '121313', quantity: 12, price: 1221, state: -1, createTime: '2020-12-16'},
-        {orderId: "123", userId: '1231', username: '王狼', phone: '17345449129', productName: '123qsqsq', productSize: '1111w331',
-         productColour: '1213131', materialType: '121313', quantity: 12, price: 1221, state: 1, createTime: '2020-12-16'},
-        {orderId: "123", userId: '1231', username: '王狼', phone: '17345449129', productName: '123qsqsq', productSize: '1111w331',
-         productColour: '1213131', materialType: '121313', quantity: 12, price: 1221, state: 2, createTime: '2020-12-16'},
-        {orderId: "123", userId: '1231', username: '王狼', phone: '17345449129', productName: '123qsqsq', productSize: '1111w331',
-         productColour: '1213131', materialType: '121313', quantity: 12, price: 1221, state: 3, createTime: '2020-12-16'},
-        {orderId: "123", userId: '1231', username: '王狼', phone: '17345449129', productName: '123qsqsq', productSize: '1111w331',
-         productColour: '1213131', materialType: '121313', quantity: 12, price: 1221, state: 4, createTime: '2020-12-16'},
-      ],
+      orderInfo: [],
       // 订单状态
       orderState: [
         {label: '已确定', value: 2}, {label: '已发货', value: 3}, {label: '已完成', value: 4} 
       ]
     }
   },
+  async mounted () {
+    // 默认查询
+    let queryVO = {};
+    queryVO.filed = null;
+    queryVO.value = null;
+    queryVO.page = 1;
+    const res = await getOrderInfo(queryVO);
+    if(res.code == 200) {
+      this.orderInfo = res.data.orderInfoBOS;
+      this.total = res.data.total;
+      this.page = res.data.page;
+    }
+
+  },
   methods: {
     // 查询
-    queryOrderInfo() {
-
+    async queryOrderInfo() {
+      // 默认查询
+      let queryVO = {};
+      queryVO.filed = null;
+      queryVO.value = null;
+      queryVO.page = 1;
+      if(this.orderId != '') {
+        Message({
+          message: '根据订单号查询',
+          type: 'info',
+          duration: 2000
+        })
+        queryVO.filed = "_id";
+        queryVO.value = this.orderId;
+      } else {
+        Message({
+          message: '查询全部',
+          type: 'info',
+          duration: 2000
+        })
+      }
+      const res = await getOrderInfo(queryVO);
+      if(res.code == 200) {
+        this.orderInfo = res.data.orderInfoBOS;
+        this.total = res.data.total;
+        this.page = res.data.page;
+      }
     },
     // 修改订单状态
-    updateOrderState() {
-
+    async updateOrderState() {
+      if(this.orderIds.length == 0) {
+        return Message({
+          message: '未选择订单',
+          type: 'error',
+          duration: 2000
+        })
+      }
+      if(this.state == '') {
+        return Message({
+          message: '未选择状态',
+          type: 'error',
+          duration: 2000
+        })
+      }
+      let orderStateUpdateVO = {};
+      orderStateUpdateVO.orderIds = this.orderIds;
+      orderStateUpdateVO.state = this.state;
+      const res = await updateOrderState(orderStateUpdateVO);
+      if(res.code == 200) {
+        Message({
+          message: '修改成功',
+          type: 'success',
+          duration: 2000
+        })
+        // 默认查询
+        let queryVO = {};
+        queryVO.filed = null;
+        queryVO.value = null;
+        queryVO.page = 1;
+        const response = await getOrderInfo(queryVO);
+        if(response.code == 200) {
+          this.orderInfo = response.data.orderInfoBOS;
+          this.total = response.data.total;
+          this.page = response.data.page;
+        }
+      } else {
+        Message({
+          message: '修改失败',
+          type: 'error',
+          duration: 2000
+        })
+      }
     },
     // 上一页
     prevInfo(index) {

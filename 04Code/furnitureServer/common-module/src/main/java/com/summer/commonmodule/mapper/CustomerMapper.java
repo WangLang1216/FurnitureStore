@@ -2,6 +2,8 @@ package com.summer.commonmodule.mapper;
 
 import com.summer.commonmodule.entity.model.Customer;
 
+import java.util.List;
+
 /**
  * 顾客信息管理
  * @author WangLang
@@ -42,5 +44,13 @@ public interface CustomerMapper {
      * @return 顾客信息
      */
     Customer queryCustomerByPhone(String phone);
+
+    /**
+     * 模糊查询顾客信息
+     * @param filed 字段名
+     * @param value 字段值
+     * @return 顾客信息集合
+     */
+    List<Customer> queryCustomerByRegx(String filed, String value);
 
 }

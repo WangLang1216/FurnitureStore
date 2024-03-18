@@ -1,9 +1,9 @@
-package com.summer.commonmodule.controller;
+package com.summer.appletserver.controller;
 
 import com.summer.commonmodule.entity.bo.WeChatIndexDataBO;
 import com.summer.commonmodule.entity.vo.*;
 import com.summer.commonmodule.response.ResponseEntity;
-import com.summer.commonmodule.service.BrowseDataService;
+import com.summer.appletserver.service.BrowseDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

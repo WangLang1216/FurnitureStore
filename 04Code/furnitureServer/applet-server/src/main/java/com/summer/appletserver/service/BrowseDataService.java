@@ -1,4 +1,4 @@
-package com.summer.commonmodule.service;
+package com.summer.appletserver.service;
 
 import com.summer.commonmodule.entity.bo.WeChatIndexDataBO;
 import com.summer.commonmodule.entity.vo.CategorySpaceVO;

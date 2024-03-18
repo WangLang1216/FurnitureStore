@@ -8,7 +8,7 @@
           <div>
             <el-statistic title="已下单">
               <template slot="formatter">
-                <span>{{ orderInfo.ordered }}</span>/{{ orderInfo.total }}
+                <span>{{ orderInfo.ordered == null ? 0 : orderInfo.ordered }}</span>/{{ orderInfo.total }}
               </template>
             </el-statistic>
           </div>
@@ -17,7 +17,7 @@
           <div>
             <el-statistic title="已确认">
               <template slot="formatter">
-                <span>{{ orderInfo.determined }}</span>/{{ orderInfo.total }}
+                <span>{{ orderInfo.determined == null ? 0 : orderInfo.determined }}</span>/{{ orderInfo.total }}
               </template>
             </el-statistic>
           </div>
@@ -26,7 +26,7 @@
           <div>
             <el-statistic title="待完成">
               <template slot="formatter">
-                <span>{{ orderInfo.completed }}</span>/{{ orderInfo.total }}
+                <span>{{ orderInfo.completed == null ? 0 : orderInfo.completed}}</span>/{{ orderInfo.total }}
               </template>
             </el-statistic>
           </div>
@@ -35,7 +35,7 @@
           <div>
             <el-statistic title="待售后">
               <template slot="formatter">
-                <span>{{ orderInfo.afterSales }}</span>/{{ orderInfo.total }}
+                <span>{{ orderInfo.afterSales == null ? 0 : orderInfo.afterSales}}</span>/{{ orderInfo.total }}
               </template>
             </el-statistic>
           </div>
@@ -71,41 +71,47 @@
 
 <script>
 import * as echarts from "echarts";
-
+import { getOrderState, getProductHeatOrSales, getShopSales } from "../../request/api";
 export default {
   name: 'HomePage',
   data () {
     return {
       // 订单信息
-      orderInfo: {ordered: 57, determined: 36, completed: 12, afterSales: 3, total: 179},
+      orderInfo: {},
       // 热度信息
-      productHeat: {
-        productName: ["衬sjj学生即可享受健康细胞进行比较衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"],
-        heatValue: [5, 20, 36, 10, 10, 28]
-      },
-      productSale: {
-        productName: ["one", "two", "three", "four", "five", "six"],
-        saleValue: [82, 77, 65, 59, 43, 20]
-      },
+      productHeat: {},
+      productSale: {},
       // 销售信息
-      shopSale: [
-        {name: '一', value: 100},
-        {name: '二', value: 180},
-        {name: '三', value: 120},
-        {name: '四', value: 160},
-        {name: '五', value: 140},
-        {name: '六', value: 280},
-        {name: '七', value: 320},
-      ],
+      shopSale: [],
       chartHeat: null,
       chartProductSale: null,
       switchHeatOrSales: false
     }
   },
-  mounted () {
-    this.echartsHeat();
-    this.echartsProductSale();
-    this.echartsSale();
+  async mounted () {
+    // 查询订单信息
+    const resOrderSate = await getOrderState();
+    if(resOrderSate.code == 200) {
+      this.orderInfo = resOrderSate.data;
+    }
+    // 查询热度和销量榜信息
+    const resProductHeat = await getProductHeatOrSales(["heat"]);
+    if(resProductHeat.code == 200) {
+      this.productHeat = resProductHeat.data;
+      this.echartsHeat();
+    }
+    const resProductSales = await getProductHeatOrSales(["sold"]);
+    if(resProductSales.code == 200) {
+      this.productSale = resProductSales.data;
+      this.echartsProductSale();
+    }
+    // 查询销售信息
+    const resShopSale = await getShopSales();
+    if(resShopSale.code == 200) {
+      this.shopSale = resShopSale.data;
+      this.echartsSale();
+    }
+    
   },
   methods: {
     echartsHeat() {
@@ -127,14 +133,14 @@ export default {
           interval: 0,
           rotate: 20
         },
-        data: this.productHeat.productName
+        data: this.productHeat.name
       },
       yAxis: {},
       series: [
         {
           name: "热度",
           type: "bar",
-          data: this.productHeat.heatValue
+          data: this.productHeat.value
         },
       ],
       };
@@ -161,14 +167,14 @@ export default {
           interval: 0,
           rotate: 20
         },
-        data: this.productSale.productName
+        data: this.productSale.name
       },
       yAxis: {},
       series: [
         {
           name: "销量",
           type: "bar",
-          data: this.productSale.saleValue
+          data: this.productSale.value
         },
       ],
       };

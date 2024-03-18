@@ -45,4 +45,11 @@ public interface UserService {
      * @return 用户信息
      */
     UserVO getUserInfo(String token);
+
+    /**
+     * 绑定微信
+     * @param token 令牌
+     * @param code 微信通信凭证
+     */
+    void bindWeChat(String token, String code);
 }

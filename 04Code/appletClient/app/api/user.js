@@ -10,6 +10,17 @@ export const loginByWeChat = (params) => {
 	})
 }
 
+// 绑定微信
+export const bindWeChat = (params) => {
+	return request({
+		url: '/user/bind/we-chat',
+		data: {
+			code: params
+		}
+	})
+}
+
+
 // 使用手机号登录
 export const loginByPhone = (params) => {
 	return request({

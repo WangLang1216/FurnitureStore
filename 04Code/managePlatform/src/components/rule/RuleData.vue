@@ -20,14 +20,14 @@
       <el-row :gutter="10">
         <el-col :span="19">
           <span>标题</span>
-          <el-input size="small" v-model="info.title" placeholder="请输入标题"></el-input>
+          <el-input size="small" v-model="info.title" placeholder="请输入标题" :clearable="true"></el-input>
           <span style="margin-left: 2%;">品类</span>
-          <el-autocomplete style="margin-left: 1%;margin-top: -0.2%;" class="inline-input" size="small" v-model="info.category" :fetch-suggestions="categorySearch" placeholder="请选择产品品类"></el-autocomplete>
+          <el-autocomplete style="margin-left: 1%;margin-top: -0.2%;" class="inline-input" size="small" v-model="info.category" :fetch-suggestions="categorySearch" placeholder="请选择产品品类" :clearable="true"></el-autocomplete>
           <span style="margin-left: 2%;">排序</span>
           <el-select v-model="info.showType" size="small" placeholder="请选择排序方式">
-            <el-option v-for="item in [{label: '热度', value: true}, {label: '时间', value: false},]" :key="item.value" :label="item.label" :value="item.value"></el-option>
+            <el-option v-for="item in [{label: '热度', value: true}, {label: '时间', value: false}]" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
-          <el-button size="small" @click="saveInfo()" type="success">保存</el-button>
+          <el-button size="small" @click="saveInfo()" type="success">添加</el-button>
         </el-col>
       </el-row>
     </div>
@@ -75,6 +75,7 @@
 
 <script>
 import { Message } from 'element-ui';
+import { setTokenExpireTime, getWeChatHomeDataCategory, saveWeChatHomeDataCategory } from '../../request/api';
 export default {
   name: 'RuleData',
   data () {
@@ -84,16 +85,19 @@ export default {
       // 品类快捷选择
       info: {title: '', category: '', showType: ''},
       categoryRes: [{ value: "沙发" },{ value: "茶几" },{ value: "电视柜" },{ value: "鞋柜" },{ value: "餐椅" },{ value: "餐边柜" },{ value: "床" },{ value: "床头柜" },{ value: "床垫" },{ value: "餐桌" },{ value: "休闲椅" }],
-      indexData: [
-        {title: '天华爆款沙发', category: '沙发', showType: true},
-        {title: '天华爆款沙发', category: '沙发', showType: false},
-        {title: '天华爆款沙发', category: '沙发', showType: true},
-      ],
+      indexData: [],
+    }
+  },
+  async mounted () {
+    // 获取微信主页数据品类信息
+    const res = await getWeChatHomeDataCategory();
+    if(res.code == 200) {
+      this.indexData = res.data;
     }
   },
   methods: {
     // 保存Token信息
-    saveToken() {
+    async saveToken() {
       if(this.accessToken == '' || this.refreshToken == '') {
         return Message({
           message: '输入信息错误或缺失',
@@ -101,20 +105,74 @@ export default {
           duration: 2000
         });
       }
+      const res = await setTokenExpireTime([this.accessToken, this.refreshToken]);
+      if(res.code == 200) {
+        this.accessToken = this.refreshToken = '';
+        return Message({
+          message: '保存成功',
+          type: 'success',
+          duration: 2000
+        });
+      }
+      Message({
+        message: '保存失败',
+        type: 'error',
+        duration: 2000
+      });
     },
     // 新增信息
-    saveInfo() {
-      if(this.info.title == '' || this.info.category == '' || this.info.showType == '') {
+    async saveInfo() {
+      console.log(this.info.showType);
+      console.log(this.info.title);
+      console.log(this.info.category);
+      if(this.info.title == '' || this.info.category == '' || this.info.showType === '') {
         return Message({
           message: '输入信息错误或缺失',
           type: 'error',
           duration: 2000
         });
       }
+      this.indexData.push(this.info);
+      const res = await saveWeChatHomeDataCategory(this.indexData);
+      if(res.code == 200) {
+        // 获取微信主页数据品类信息
+        const response = await getWeChatHomeDataCategory();
+        if(response.code == 200) {
+          this.indexData = response.data;
+        }
+        return Message({
+          message: '添加成功',
+          type: 'success',
+          duration: 2000
+        });
+      }
+      Message({
+        message: '添加失败',
+        type: 'error',
+        duration: 2000
+      });
     },
     // 删除
-    handleDelete(index, row) {
-
+    async handleDelete(index, row) {
+      const filteredArray = this.indexData.filter(item => item !== row);
+      const res = await saveWeChatHomeDataCategory(filteredArray);
+      if(res.code == 200) {
+        // 获取微信主页数据品类信息
+        const response = await getWeChatHomeDataCategory();
+        if(response.code == 200) {
+          this.indexData = response.data;
+        }
+        return Message({
+          message: '删除成功',
+          type: 'success',
+          duration: 2000
+        });
+      }
+      Message({
+        message: '删除失败',
+        type: 'error',
+        duration: 2000
+      });
     },
     filterTag(value, row) {
       return row.showType === value;
@@ -149,6 +207,6 @@ export default {
     width: 70px;
     height: 31px;
     margin-left: 1%;
-    margin-top: 1%;
+    margin-top: 0.8%;
   }
 </style>

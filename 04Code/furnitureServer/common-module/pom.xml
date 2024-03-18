@@ -20,6 +20,8 @@
         <hutool.version>5.8.18</hutool.version>
         <io.minio.version>8.2.2</io.minio.version>
         <alibaba.fastjson.version>1.2.51</alibaba.fastjson.version>
+        <aliyun-java-sdk-core.version>3.2.6</aliyun-java-sdk-core.version>
+        <aliyun-java-sdk-dysmsapi.version>1.0.0</aliyun-java-sdk-dysmsapi.version>
     </properties>
 
     <dependencies>
@@ -65,6 +67,17 @@
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>${alibaba.fastjson.version}</version>
+        </dependency>
+        <!-- 阿里云服务 -->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>aliyun-java-sdk-core</artifactId>
+            <version>${aliyun-java-sdk-core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>aliyun-java-sdk-dysmsapi</artifactId>
+            <version>${aliyun-java-sdk-dysmsapi.version}</version>
         </dependency>
 
         <!-- lombok -->

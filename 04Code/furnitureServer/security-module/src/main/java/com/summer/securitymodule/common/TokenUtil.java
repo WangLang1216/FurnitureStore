@@ -3,6 +3,7 @@ package com.summer.securitymodule.common;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.crypto.CryptoException;
+import com.summer.commonmodule.entity.bo.TokenExpireTimeBO;
 import com.summer.commonmodule.entity.bo.TokenInfoBO;
 import com.summer.commonmodule.exception.RecordLoggerThrowException;
 import com.summer.commonmodule.response.ResponseEnum;
@@ -28,8 +29,16 @@ public class TokenUtil {
     @Autowired
     private EncryptionUtil encryptionUtil;
 
-    private static final Integer ACCESS_EXPIRES_IN = 60;
-    private static final Integer REFRESH_EXPIRES_IN = 300;
+    /**
+     * 默认请求Token和刷新Token过期时间
+     */
+    private static final Integer ACCESS_EXPIRES_IN = 3600;
+    private static final Integer REFRESH_EXPIRES_IN = 7200;
+
+    /**
+     * Token存储KEY
+     */
+    private static final String TOKEN_EXPIRE_KEY = "tokenExpireTime";
 
     private static final Logger logger = LoggerFactory.getLogger(TokenUtil.class);
 
@@ -44,8 +53,18 @@ public class TokenUtil {
         // 创建accessToken和refreshToken
         String token = IdUtil.simpleUUID();
 
+        // 查询Redis中过期时间
+        TokenExpireTimeBO tokenExpireTimeBO = new TokenExpireTimeBO();
+        boolean tokenExpireKey = redisUtil.hasKey(TOKEN_EXPIRE_KEY);
+        if (tokenExpireKey) {
+            tokenExpireTimeBO = (TokenExpireTimeBO) redisUtil.get(TOKEN_EXPIRE_KEY);
+        }
+
         // 根据tokenType判断是accessToken还是refreshToken，时间不同，true为accessToken时间，false为refreshToken时间
         int expiresTime = Boolean.TRUE.equals(tokenType) ? ACCESS_EXPIRES_IN : REFRESH_EXPIRES_IN;
+        if (tokenExpireKey) {
+            expiresTime = Boolean.TRUE.equals(tokenType) ? tokenExpireTimeBO.getAccessTokenExpireTime() : tokenExpireTimeBO.getRefreshTokenExpireTime();
+        }
 
         tokenBO.setToken(token)
                 .setExpiresIn(expiresTime);

@@ -80,7 +80,7 @@ public class MinioUtil {
      * @return FilePath
      */
     public String createFilePath(String fileName) {
-        return new SimpleDateFormat("yyyy/MM/dd").format(new Date()) + "/" + fileName;
+        return bucketName + "/" + fileName;
     }
 
     /**
@@ -168,15 +168,18 @@ public class MinioUtil {
      * @return Map key-文件名 value-文件路径
      */
     @SneakyThrows
-    public Map<String, String> upload(MultipartFile[] file, String bucketName) {
-        Map<String, String> filePaths = new HashMap<>();
+    public List<Map<String, String>> upload(MultipartFile[] file, String bucketName) {
+        List<Map<String, String>> filePaths = new ArrayList<>();
         String thisBucketName = bucketName == null || bucketName.equals("") ? this.bucketName : bucketName;
         for (MultipartFile item : file) {
             String fileName = item.getOriginalFilename();
             InputStream inputStream = item.getInputStream();
             long size = item.getSize();
             String filePath = createFilePath(fileName);
-            filePaths.put(fileName, filePath);
+            Map<String, String> map = new HashMap<>();
+            map.put("fileName", fileName);
+            map.put("filePath", filePath);
+            filePaths.add(map);
             System.out.println(fileName + "的文件路径为：" + filePath);
             minioClient.putObject(PutObjectArgs.builder()
                     .bucket(thisBucketName)

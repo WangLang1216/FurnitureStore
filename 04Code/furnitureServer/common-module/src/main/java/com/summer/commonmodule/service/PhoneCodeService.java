@@ -13,5 +13,10 @@ public interface PhoneCodeService {
      */
     void checkCode(String phone, String code);
 
+    /**
+     * 发送验证码
+     * @param phone 手机号
+     */
+    void sendSMS(String phone);
 
 }

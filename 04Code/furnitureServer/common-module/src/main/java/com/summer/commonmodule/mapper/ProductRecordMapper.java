@@ -22,4 +22,18 @@ public interface ProductRecordMapper {
      */
     ProductRecord saveProductRecord(ProductRecord productRecord);
 
+    /**
+     * 新增产品记录信息
+     * @param productRecord 产品记录信息
+     * @return 产品记录信息
+     */
+    ProductRecord insertProductRecord(ProductRecord productRecord);
+
+    /**
+     * 根据ID删除产品记录信息
+     * @param ids 产品记录ID
+     * @return 删除数量
+     */
+    Long deleteProductRecordById(String[] ids);
+
 }

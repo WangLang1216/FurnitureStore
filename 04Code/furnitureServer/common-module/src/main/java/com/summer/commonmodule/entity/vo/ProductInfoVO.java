@@ -21,7 +21,9 @@ import java.util.List;
 @Accessors(chain = true)
 public class ProductInfoVO {
 
-    @Id
+    /**
+     * 产品ID
+     */
     private String productId;
 
     /**

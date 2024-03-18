@@ -4,6 +4,7 @@ import cn.hutool.core.util.CharsetUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.summer.commonmodule.exception.BusinessException;
 import com.summer.commonmodule.response.ResponseEntity;
+import com.summer.commonmodule.response.ResponseEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,6 @@ public class HttpHandler {
 			logger.info("print obj is null");
 			return;
 		}
-
 		ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder
 				.getRequestAttributes();
 		if (requestAttributes == null) {
@@ -43,9 +43,9 @@ public class HttpHandler {
 		HttpServletResponse response = requestAttributes.getResponse();
 		if (response == null) {
 			logger.error("httpServletResponse is null, can not print to web");
-			return;
+			throw new BusinessException(ResponseEnum.UNAUTHORIZED);
 		}
-		logger.error("response error: " + responseEntity.getMsg());
+		logger.error("response error:{}", responseEntity.getMsg());
 		response.setCharacterEncoding(CharsetUtil.UTF_8);
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		PrintWriter printWriter = null;

@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -48,12 +49,17 @@ public class ShoppingInfoMapperImpl implements ShoppingInfoMapper {
     }
 
     @Override
-    public List<ShoppingInfo> queryShoppingListById(String shoppingIds) {
+    public List<ShoppingInfo> queryShoppingListById(String[] shoppingIds) {
         return mongoTemplate.find(new Query(Criteria.where("_id").in(shoppingIds)), ShoppingInfo.class);
     }
 
     @Override
-    public Long deleteShoppingByIds(String shoppingIds) {
+    public Long deleteShoppingByIds(String[] shoppingIds) {
         return mongoTemplate.remove(new Query(Criteria.where("_id").in(shoppingIds)), ShoppingInfo.class).getDeletedCount();
+    }
+
+    @Override
+    public Long deleteShoppingByProductIds(String[] productIds) {
+        return mongoTemplate.remove(new Query(Criteria.where("product_id").in(productIds)), ShoppingInfo.class).getDeletedCount();
     }
 }

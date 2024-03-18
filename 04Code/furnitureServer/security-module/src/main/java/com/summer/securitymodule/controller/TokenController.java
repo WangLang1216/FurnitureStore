@@ -3,6 +3,7 @@ package com.summer.securitymodule.controller;
 import com.summer.commonmodule.response.ResponseEntity;
 import com.summer.securitymodule.entity.vo.TokenInfoVO;
 import com.summer.securitymodule.service.TokenInfoService;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,6 +15,7 @@ import javax.validation.constraints.NotBlank;
  * Token刷新
  * @author WangLang
  */
+@CrossOrigin
 @RestController
 @RequestMapping("/api/v1")
 public class TokenController {

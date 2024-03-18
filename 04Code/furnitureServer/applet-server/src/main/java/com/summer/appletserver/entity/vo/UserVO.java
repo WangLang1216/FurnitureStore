@@ -32,4 +32,9 @@ public class UserVO {
      */
     private String picture;
 
+    /**
+     * 是否绑定微信，true为绑定，false为未绑定
+     */
+    private Boolean bindWeChat;
+
 }

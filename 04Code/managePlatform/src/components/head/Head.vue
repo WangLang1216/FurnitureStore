@@ -17,6 +17,8 @@
 </template>
 
 <script>
+import { Message } from 'element-ui';
+import { logout } from '../../request/api';
 export default {
   name: 'Head',
   data () {
@@ -26,8 +28,16 @@ export default {
   },
   methods: {
     // 退出登录
-    logout() {
-      
+    async logout() {
+      const res = await logout();
+      if(res.code !== 200) return;
+      localStorage.clear();
+      console.log(localStorage.getItem("accessToken"));
+      Message({
+        message: '退出成功',
+        type: 'success',
+        duration: 2000
+      });
       this.$router.push({name: 'login'});
     }
   }

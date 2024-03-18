@@ -43,13 +43,19 @@ public interface ShoppingInfoMapper {
      * @param shoppingIds 购物车ID集合
      * @return 购物车信息集合
      */
-    List<ShoppingInfo> queryShoppingListById(String shoppingIds);
+    List<ShoppingInfo> queryShoppingListById(String[] shoppingIds);
 
     /**
      * 根据ID删除购物车信息
      * @param shoppingIds 购物车ID
      * @return 删除数量
      */
-    Long deleteShoppingByIds(String shoppingIds);
+    Long deleteShoppingByIds(String[] shoppingIds);
 
+    /**
+     * 根据ID删除购物车信息
+     * @param productIds 产品ID
+     * @return 删除数量
+     */
+    Long deleteShoppingByProductIds(String[] productIds);
 }

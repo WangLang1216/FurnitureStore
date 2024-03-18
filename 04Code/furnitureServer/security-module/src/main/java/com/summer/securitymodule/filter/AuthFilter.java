@@ -9,6 +9,7 @@ import com.summer.securitymodule.adapter.AuthConfigAdapter;
 import com.summer.securitymodule.handler.HttpHandler;
 import com.summer.securitymodule.service.TokenInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
@@ -33,12 +34,15 @@ public class AuthFilter implements Filter {
 	@Autowired
 	private TokenInfoService tokenInfoService;
 
-
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) servletRequest;
 		HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+		if (HttpMethod.OPTIONS.toString().equals(request.getMethod())) {
+			chain.doFilter(request, response);
+		}
 
 		// 不需要授权路径
 		List<String> excludePathPatterns = authConfigAdapter.excludePathPatterns();

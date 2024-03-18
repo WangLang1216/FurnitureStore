@@ -1,7 +1,8 @@
-package com.summer.commonmodule.service.impl;
+package com.summer.appletserver.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.text.CharSequenceUtil;
+import com.summer.appletserver.service.BrowseDataService;
 import com.summer.commonmodule.entity.bo.CategorySpaceInfoBO;
 import com.summer.commonmodule.entity.bo.HomeDataInfoBO;
 import com.summer.commonmodule.entity.bo.TokenInfoBO;
@@ -15,7 +16,6 @@ import com.summer.commonmodule.entity.vo.WeChatIndexDataVO;
 import com.summer.commonmodule.exception.RecordLoggerThrowException;
 import com.summer.commonmodule.mapper.*;
 import com.summer.commonmodule.response.ResponseEnum;
-import com.summer.commonmodule.service.BrowseDataService;
 import com.summer.commonmodule.utils.EncryptionUtil;
 import com.summer.commonmodule.utils.RedisUtil;
 import org.slf4j.Logger;
@@ -132,10 +132,10 @@ public class BrowseDataServiceImpl implements BrowseDataService {
                     .setCategory("沙发")
                     .setShowType(true);
             bed.setTitle("松柏爆推大床")
-                    .setCategory("bed")
+                    .setCategory("床")
                     .setShowType(true);
             board.setTitle("爆款餐桌椅")
-                    .setCategory("board")
+                    .setCategory("餐桌")
                     .setShowType(true);
             homeDataInfoBOS.add(sofa);
             homeDataInfoBOS.add(bed);
@@ -295,7 +295,7 @@ public class BrowseDataServiceImpl implements BrowseDataService {
         // 根据权重计算比例并请求数量
         List<WeChatIndexDataBO> weChatIndexDataBOList = new ArrayList<>();
         for (LikeProduct likeProduct : userLike.getLikeProducts()) {
-            int proportion = likeProduct.getWeight() / userLike.getTotal() * 10;
+            int proportion = (int) (likeProduct.getWeight() / Double.valueOf(userLike.getTotal()) * 10);
             if (proportion > 0) {
                 List<ProductRecordDTO> productRecordDTOList = productInfoMapper.queryProductInfo("category",
                         likeProduct.getCategory(), "productInfo.heat", Sort.Direction.DESC, 0, proportion);
@@ -319,7 +319,7 @@ public class BrowseDataServiceImpl implements BrowseDataService {
                     .setName(dto.getName())
                     .setImage(dto.getCarouselImages().get(0).getImage())
                     .setPrice(dto.getProductInfo().getPrice())
-                    .setSold(dto.getProductInfo().getPrice());
+                    .setSold(dto.getProductInfo().getSold());
             weChatIndexDataBOS.add(weChatIndexData);
         }
     }

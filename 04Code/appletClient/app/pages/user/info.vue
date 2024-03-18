@@ -26,7 +26,8 @@
             </view>
             <view>
                 <view>绑定微信</view>
-                <view>已绑定微信</view>
+                <view v-if="userInfo.bindWeChat">已绑定微信</view>
+                <view v-else style="color: #7e1e1f;" @click="bindWeChat()">点击进行绑定</view>
             </view>
         </view>
         <uni-popup ref="popup" type="dialog">
@@ -62,7 +63,7 @@
 </template>
 
 <script>
-    import { getUserInfo, logout, saveUserNickname, saveUserPhone, sendSmsCode } from '@/api/user.js';
+    import { bindWeChat, getUserInfo, logout, saveUserNickname, saveUserPhone, sendSmsCode } from '@/api/user.js';
 
     export default {
         data() {
@@ -197,6 +198,29 @@
                                 duration: 3000,
                             });
                         }
+                    },
+                });
+            },
+
+            // 绑定微信
+            bindWeChat() {
+                uni.login({
+                    provider: 'weixin',
+                    success: (resLogin) => {
+                        bindWeChat(resLogin.code).then((res) => {
+                            if (res.code === 200) {
+                                // 查询用户信息
+                                getUserInfo().then((res) => {
+                                    this.userInfo = res.data;
+                                });
+                            } else {
+                                uni.showToast({
+                                    icon: 'error',
+                                    title: res.msg,
+                                    duration: 3000,
+                                });
+                            }
+                        });
                     },
                 });
             },

@@ -1,5 +1,6 @@
 package com.summer.commonmodule.mapper.impl;
 
+import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.IdUtil;
 import com.summer.commonmodule.entity.model.Customer;
 import com.summer.commonmodule.mapper.CustomerMapper;
@@ -10,6 +11,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 顾客信息管理
@@ -53,5 +55,14 @@ public class CustomerMapperImpl implements CustomerMapper {
         Query query = new Query(Criteria.where("phone").is(phone));
 
         return mongoTemplate.findOne(query, Customer.class);
+    }
+
+    @Override
+    public List<Customer> queryCustomerByRegx(String filed, String value) {
+        if (CharSequenceUtil.isBlank(filed)) {
+            return mongoTemplate.findAll(Customer.class);
+        }
+
+        return mongoTemplate.find(new Query(Criteria.where(filed).regex(value)), Customer.class);
     }
 }

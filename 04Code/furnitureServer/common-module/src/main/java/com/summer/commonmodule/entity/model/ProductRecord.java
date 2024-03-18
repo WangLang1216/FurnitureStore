@@ -36,13 +36,13 @@ public class ProductRecord extends BaseModel implements Serializable {
      * 已售数量
      */
     @Field("sold")
-    private Integer sold;
+    private Integer sold = 0;
 
     /**
      * 热度
      */
     @Field("heat")
-    private Integer heat;
+    private Integer heat = 0;
 
     /**
      * 收藏用户
@@ -60,6 +60,6 @@ public class ProductRecord extends BaseModel implements Serializable {
      * 综合得分值
      */
     @Field("score")
-    private Double score;
+    private Double score = 0d;
 
 }

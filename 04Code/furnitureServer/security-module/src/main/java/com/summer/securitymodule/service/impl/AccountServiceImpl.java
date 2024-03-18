@@ -7,6 +7,7 @@ import com.summer.commonmodule.entity.model.Admin;
 import com.summer.commonmodule.exception.RecordLoggerThrowException;
 import com.summer.commonmodule.mapper.AdminMapper;
 import com.summer.commonmodule.response.ResponseEnum;
+import com.summer.commonmodule.service.PhoneCodeService;
 import com.summer.commonmodule.utils.EncryptionUtil;
 import com.summer.commonmodule.utils.RedisUtil;
 import com.summer.securitymodule.common.WeChatUtil;
@@ -61,10 +62,8 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private TokenInfoService tokenInfoService;
 
-    /**
-     * 短信失效时间
-     */
-    private static final Integer SMS_CODE_TIME = 300;
+    @Autowired
+    private PhoneCodeService phoneCodeService;
 
     private static final Logger logger = LoggerFactory.getLogger(AccountServiceImpl.class);
 
@@ -150,8 +149,8 @@ public class AccountServiceImpl implements AccountService {
         }
 
         // 通过手机号Key查询验证码值
-        String code = (String) redisUtil.get(phone);
-        if (!code.equals(phoneCodeVO.getCode())) {
+        Integer code = (Integer) redisUtil.get(phone);
+        if (!code.toString().equals(phoneCodeVO.getCode())) {
             RecordLoggerThrowException.record(ResponseEnum.VERIFICATION_CODE_ERROR, logger);
         }
 
@@ -171,19 +170,15 @@ public class AccountServiceImpl implements AccountService {
             }
             // 查询数据库中是否存在该用户，不存在则插入
             if (Objects.isNull(customer)) {
-                // 获取微信用户OpenID
-                String openId = weChatUtil.getWxOpenId(phoneCodeVO.getWeChatCode());
-
-                Customer insertCustomer = new Customer();
-                insertCustomer.setOpenId(openId)
-                        .setPhone(phone);
-                Customer insert = accountMapper.insertCustomer(insertCustomer);
-                if (Objects.isNull(insert)) {
-                    RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, logger);
-                }
-                customer = insert;
-                // 设置为首次登录
-                firstLogin = true;
+                    Customer insertCustomer = new Customer();
+                    insertCustomer.setPhone(phone);
+                    Customer insert = accountMapper.insertCustomer(insertCustomer);
+                    if (Objects.isNull(insert)) {
+                        RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, logger);
+                    }
+                    customer = insert;
+                    // 设置为首次登录
+                    firstLogin = true;
             }
             // 存储Token信息
             storeTokenInfoBO.setUserId(customer.getUserId())
@@ -214,14 +209,8 @@ public class AccountServiceImpl implements AccountService {
             RecordLoggerThrowException.record(ResponseEnum.HTTP_MESSAGE_NOT_READABLE, logger);
         }
 
-        //TODO 发送短信服务
-        String smsCode = "1234";
+        phoneCodeService.sendSMS(phone);
 
-        // 存储到Redis
-        boolean smsCodeKey = redisUtil.set(phone, smsCode, SMS_CODE_TIME);
-        if (!smsCodeKey) {
-            RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, "Verification code storage failed", logger);
-        }
     }
 
     @Override

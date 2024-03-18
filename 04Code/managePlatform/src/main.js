@@ -7,7 +7,14 @@ import router from './router'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 
-Vue.use(ElementUI)
+import store from './store/store'
+
+// const express = require('express')
+// const cors = require('cors')
+// const app = express()
+// app.use(cors)
+
+Vue.use(ElementUI).use(store)
 
 Vue.config.productionTip = false
 

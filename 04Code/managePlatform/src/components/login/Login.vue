@@ -18,7 +18,7 @@
             <el-input placeholder="请输入验证码" prefix-icon="el-icon-mobile" v-model="code" @keyup.enter.native="login()" clearable></el-input>
           </el-col>
           <el-col :span="7">
-            <el-button type="warning" plain @click="getPhoneCode()">获取验证码</el-button>
+            <el-button type="warning" plain @click="getPhoneCode()">{{ codeText }}</el-button>
           </el-col>
         </el-row>
       </div>
@@ -30,7 +30,10 @@
 </template>
 
 <script>
+import store from '../../store/store';
 import { Message } from 'element-ui';
+import { loginByAccount, sendSmsCode, loginByPhone } from '../../request/api';
+
 export default {
   name: 'Login',
   data () {
@@ -40,11 +43,12 @@ export default {
       phone: '',
       code: '',
       loginType: false,
+      codeText: '获取验证码',
     }
   },
   methods: {
     // 获取验证码
-    getPhoneCode() {
+    async getPhoneCode() {
       if(this.phone == '') {
         return Message({
           message: '请输入手机号',
@@ -52,11 +56,20 @@ export default {
           duration: 2000
         });
       }
-
-
+      console.log("123");
+      const res = await sendSmsCode(this.phone);
+      if(res.code !== 200) {
+        return Message({
+          message: res.msg,
+          type: 'error',
+          duration: 2000
+        });
+      }
+      this.codeText = '获取成功';
     },
     // 登录
-    login() {
+    async login() {
+      let res;
       if(this.loginType) {
         if(this.account == '' || this.password == '') {
           return Message({
@@ -65,6 +78,11 @@ export default {
             duration: 2000
           });
         }
+        let accountVO = {};
+        accountVO.account = this.account;
+        accountVO.password= this.password;
+        res = await loginByAccount(accountVO);
+        if(res.code !== 200) return
       } else {
         if(this.code == '') {
           return Message({
@@ -73,11 +91,23 @@ export default {
             duration: 2000
           });
         }
+        let phoneCodeVO = {};
+        phoneCodeVO.phone = this.phone;
+        phoneCodeVO.code = this.code;
+        phoneCodeVO.sysType = false;
+        const res = await loginByPhone(phoneCodeVO);
+        if(res.code !== 200) {
+          return Message({
+            message: res.msg,
+            type: 'error',
+            duration: 2000
+          });
+        }
       }
+      store.commit('setToken', res.data);
       this.$router.push({name: 'home'});
     }
-    
-  }
+  },
 }
 </script>
 

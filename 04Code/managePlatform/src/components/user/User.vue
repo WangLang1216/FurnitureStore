@@ -7,9 +7,9 @@
       <el-row :gutter="10">
         <el-col :span="14">
           <span>用户名</span>
-          <el-input size="small" v-model="nickname" placeholder="根据用户名模糊查询顾客信息"></el-input>
+          <el-input size="small" v-model="nickname" placeholder="根据用户名模糊查询顾客信息" :clearable="true"></el-input>
           <span style="margin-left: 2%;">手机号</span>
-          <el-input size="small" v-model="phone" placeholder="根据手机号模糊查询顾客信息"></el-input>
+          <el-input size="small" v-model="phone" placeholder="根据手机号模糊查询顾客信息" :clearable="true"></el-input>
           <el-button size="small" @click="queryUserInfo()" type="primary">查询</el-button>
         </el-col>
       </el-row>
@@ -34,7 +34,7 @@
           width="55">
           </el-table-column>
         <el-table-column
-          :prop="switchUser ? 'account' : 'nickname'"
+          prop="name"
           :label="switchUser ? '账号' : '昵称'"
           width="200">
         </el-table-column>
@@ -74,13 +74,14 @@
           label="操作"
           width="180">
           <template slot-scope="scope">
-            <el-switch v-model="scope.row.state" v-if="scope.row.role != 1" @change="disableUser(scope.row.userId)" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+            <el-switch v-model="scope.row.state" v-if="scope.row.role != 1" @change="disableUser(scope.row.userId, scope.row.state)" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
           </template>
         </el-table-column>
       </el-table>
     </div>
     <!-- 新增管理用户 -->
     <el-dialog
+      :append-to-body="true"
       title="新增管理用户"
       :visible.sync="dialogVisible"
       width="30%"
@@ -88,15 +89,15 @@
       <el-row>
         <el-col :span="3">账号</el-col>
         <el-col :span="21" style="display: flex;">
-          <el-input size="small" v-model="addAdminUser.account" placeholder="请输入账号"></el-input>
+          <el-input size="small" v-model="addAdminUser.account" placeholder="请输入账号" :clearable="true"></el-input>
         </el-col>
         <el-col style="margin-top: 1%;" :span="3">密码</el-col>
         <el-col style="margin-top: 1%;" :span="21">
-         <el-input size="small" v-model="addAdminUser.password" placeholder="请输入密码"></el-input>
+         <el-input size="small" v-model="addAdminUser.password" placeholder="请输入密码" :clearable="true"></el-input>
         </el-col>
         <el-col style="margin-top: 1%;" :span="3">手机号</el-col>
         <el-col style="margin-top: 1%;" :span="21">
-          <el-input size="small" v-model="addAdminUser.phone" placeholder="请输入手机号"></el-input>
+          <el-input size="small" v-model="addAdminUser.phone" placeholder="请输入手机号" :clearable="true"></el-input>
         </el-col>
       </el-row>
       <span slot="footer" class="dialog-footer">
@@ -110,6 +111,7 @@
 
 <script>
 import { Message } from 'element-ui';
+import { getUserInfo, addAdmin, delUser, updateUserState } from '../../request/api';
 export default {
   name: 'User',
   data () {
@@ -132,23 +134,28 @@ export default {
       switchUser: false,
       // 新增切换
       dialogVisible: false,
-      userInfo: [
-        {userId: '133', nickname: '123', phone: '17345449129', state: true, createTime: '2022-12-16'},
-        {userId: '133', nickname: '123', phone: '17345449129', state: true, createTime: '2022-12-16'},
-        {userId: '133', nickname: '123', phone: '17345449129', state: true, createTime: '2022-12-16'},
-        {userId: '133', nickname: '123', phone: '17345449129', state: true, createTime: '2022-12-16'},
-      ],
-      adminInfo: [
-        {userId: '133', account: 'admin', role: 1, phone: '17345449129', state: true, createTime: '2022-12-16'},
-        {userId: '133', account: '123', role: 0, phone: '17345449129', state: true, createTime: '2022-12-16'},
-        {userId: '133', account: '123', role: 0, phone: '17345449129', state: true, createTime: '2022-12-16'},
-        {userId: '133', account: '123', role: 0, phone: '17345449129', state: true, createTime: '2022-12-16'},
-      ]
+      userInfo: [],
+      adminInfo: []
+    }
+  },
+  async mounted () {
+    // 默认查询
+    let queryVO = {};
+    const res = await getUserInfo(0, queryVO);
+    if(res.code === 200) {
+      res.data.forEach(element => {
+        if(element.sysType === 1) {
+          this.adminInfo = element.userInfoBOS;
+        } else {
+          this.userInfo = element.userInfoBOS;
+        }
+      })
     }
   },
   methods: {
     // 查询
-    queryUserInfo() {
+    async queryUserInfo() {
+      let res;
       // 查询全部
       if(this.nickname == '' && this.phone == '') {
         Message({
@@ -156,26 +163,56 @@ export default {
           type: 'info',
           duration: 2000
         });
-
-        return;
+        // 默认查询
+        let queryVO = {};
+        res = await getUserInfo(0, queryVO);
       }
-      if(this.nickname != '') {
+      else if(this.nickname != '') {
         Message({
           message: '当前为用户昵称查询',
           type: 'info',
           duration: 2000
         });
-
-        return;
+        let queryVO = {};
+        queryVO.filed = this.switchUser ? 'account' : 'nickname';
+        queryVO.value = this.nickname;
+        res = await getUserInfo(this.switchUser ? 1 : 2, queryVO);
+      } else {
+        Message({
+          message: '当前为用户手机号查询',
+          type: 'info',
+          duration: 2000
+        });
+        let queryVO = {};
+        queryVO.filed = 'phone';
+        queryVO.value = this.phone;
+        res = await getUserInfo(this.switchUser ? 1 : 2, queryVO);
       }
-      Message({
-        message: '当前为用户手机号查询',
-        type: 'info',
-        duration: 2000
-      });
+      if(res.code === 200) {
+        res.data.forEach(element => {
+          if(element.sysType === 1) {
+            this.adminInfo = element.userInfoBOS;
+          } else {
+            this.userInfo = element.userInfoBOS;
+          }
+        })
+      } else {
+        Message({
+          message: res.msg,
+          type: 'error',
+          duration: 2000
+        });
+      }
     },
     // 删除用户
-    deleteUser() {
+    async deleteUser() {
+      if(!this.switchUser) {
+        return Message({
+          message: '不可删除顾客信息',
+          type: 'error',
+          duration: 2000
+        });
+      }
       if(this.userIds.length == 0) {
         return Message({
           message: '未选择用户',
@@ -183,18 +220,63 @@ export default {
           duration: 2000
         });
       }
-
+      const res = await delUser(this.userIds);
+      if(res.code !== 200) {
+        return Message({
+          message: res.msg,
+          type: 'error',
+          duration: 2000
+        });
+      }
+      Message({
+        message: '删除成功',
+        type: 'success',
+        duration: 2000
+      });
+      // 默认查询
+      let queryVO = {};
+      const user = await getUserInfo(0, queryVO);
+      if(user.code === 200) {
+        user.data.forEach(element => {
+          if(element.sysType === 1) {
+            this.adminInfo = element.userInfoBOS;
+          } else {
+            this.userInfo = element.userInfoBOS;
+          }
+        })
+      }
     },
+
     // 状态修改
-    disableUser(userId) {
-      if(this.switchUser) {
-        // 修改管理用户状态
-      } else {
-        // 修改普通用户状态
+    async disableUser(userId, state) {
+      const res = await updateUserState([userId, state, this.switchUser]);
+      if(res.code !== 200) {
+        return Message({
+          message: res.msg,
+          type: 'error',
+          duration: 2000
+        });
+      }
+      Message({
+        message: '修改成功',
+        type: 'success',
+        duration: 2000
+      });
+      // 默认查询
+      let queryVO = {};
+      const user = await getUserInfo(0, queryVO);
+      if(user.code === 200) {
+        user.data.forEach(element => {
+          if(element.sysType === 1) {
+            this.adminInfo = element.userInfoBOS;
+          } else {
+            this.userInfo = element.userInfoBOS;
+          }
+        })
       }
     },
     // 新增管理用户
-    addAdminUseInfo() {
+    async addAdminUseInfo() {
       if(this.addAdminUser.account == '' || this.addAdminUser.password == '' || this.addAdminUser.phone == '') {
         return Message({
           message: '输入信息错误或缺失',
@@ -202,14 +284,38 @@ export default {
           duration: 2000
         });
       }
-
-      this.dialogVisible = false
+      const res = await addAdmin(this.addAdminUser);
+      if(res.code !== 200) {
+        return Message({
+          message: res.msg,
+          type: 'error',
+          duration: 2000
+        });
+      }
+      Message({
+        message: '添加成功',
+        type: 'success',
+        duration: 2000
+      });
+      this.dialogVisible = false;
+      // 默认查询
+      let queryVO = {};
+      const user = await getUserInfo(0, queryVO);
+      if(user.code === 200) {
+        user.data.forEach(element => {
+          if(element.sysType === 1) {
+            this.adminInfo = element.userInfoBOS;
+          } else {
+            this.userInfo = element.userInfoBOS;
+          }
+        })
+      }
     },
     // 多选
     handleSelectionChange(val) {
       this.userIds = [];
       val.forEach(element => {
-        this.userIds.push(element.orderId)
+        this.userIds.push(element.userId)
       });
     },
     filterTag(value, row) {

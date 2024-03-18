@@ -16,6 +16,7 @@ import javax.validation.constraints.NotNull;
  * 账号登录-登出-短信
  * @author WangLang
  */
+@CrossOrigin
 @RestController
 @RequestMapping("/api/v1")
 public class LoginController {
@@ -41,7 +42,7 @@ public class LoginController {
      * @return Token信息
      */
     @PostMapping("/ua/web/login")
-    public ResponseEntity<TokenInfoVO> login(@NotNull AccountVO accountVO) {
+    public ResponseEntity<TokenInfoVO> login(@RequestBody @NotNull AccountVO accountVO) {
         TokenInfoVO tokenInfoVO = accountService.login(accountVO);
 
         return ResponseEntity.success(tokenInfoVO);

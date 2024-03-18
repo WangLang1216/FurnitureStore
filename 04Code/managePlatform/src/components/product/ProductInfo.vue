@@ -2,7 +2,7 @@
  * @Author: 王狼 address
  * @Date: 2024-03-07 11:33:57
  * @LastEditors: 王狼 address
- * @LastEditTime: 2024-03-07 20:18:56
+ * @LastEditTime: 2024-03-13 15:43:09
  * @FilePath: \managePlatform\src\components\product\ProductInfo.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -15,9 +15,9 @@
       <el-row :gutter="10">
         <el-col :span="14">
           <span>编号</span>
-          <el-input size="small" v-model="identifier" placeholder="根据编号模糊查询"></el-input>
+          <el-input size="small" v-model="identifier" placeholder="根据编号模糊查询" :clearable="true"></el-input>
           <span style="margin-left: 2%;">名称</span>
-          <el-input size="small" v-model="name" placeholder="根据名称模糊查询"></el-input>
+          <el-input size="small" v-model="name" placeholder="根据名称模糊查询" :clearable="true"></el-input>
           <el-button size="small" @click="queryProduct()" type="primary">查询</el-button>
           <el-button size="small" @click="deleteProduct()" type="danger">删除</el-button>
         </el-col>
@@ -40,8 +40,7 @@
           label="图片"
           width="160">
           <template slot-scope="scope">
-            <!-- <img :src="scope.row.image" /> -->
-            <img src="../../assets/images/sofa_1.jpg" style="width: 60%;" />
+            <img :src="scope.row.image" style="width: 60%;" />
           </template>
         </el-table-column>
         <el-table-column
@@ -117,6 +116,12 @@
           width="100">
         </el-table-column>
         <el-table-column
+          prop="heat"
+          label="热度"
+          sortable
+          width="100">
+        </el-table-column>
+        <el-table-column
           prop="score"
           label="综合得分"
           sortable
@@ -130,7 +135,7 @@
           label="创建日期"
           sortable
           :show-overflow-tooltip="true"
-          width="100">
+          width="115">
         </el-table-column>
         <el-table-column
           fixed="right"
@@ -154,6 +159,7 @@
 
 <script>
 import { Message } from 'element-ui';
+import { getProductRecord, delProductInfo } from '../../request/api';
 export default {
   name: 'ProductInfo',
   data () {
@@ -163,32 +169,15 @@ export default {
       // 名称
       name: '',
       // 总条数
-      total: 30,
+      total: 0,
       // 当前页数
       page: 1,
       // 产品ID信息
       productId: [],
       // 产品数据
-      productInfo: [
-        {productId: '123', name: '现代意式网红北欧客厅转角简约组合直排纳米科技布沙发现代小户型奢华', introduce: '介绍', identifier: 'J140-X04-109-2072#',
-        producer: '广东佛山', materialQuality: '实木框架', filler: '其他', piece: '1件', technology: '其他', installationMethod: '组装',
-        style: '现代简约', category: '沙发', space: '客厅', term: '15天', service: '包送、包安装', price: 6730, sold: 310, heat: 520,
-        collect: '5人', inventory: 30, score: 4.7, image: '../../assets/images/sofa_1.jpg', creationTime: '2022-12-16'},
-        {productId: '123', name: '现代意式网红北欧客厅转角简约组合直排纳米科技布沙发现代小户型奢华', introduce: '介绍', identifier: 'J140-X04-109-2072#',
-        producer: '广东佛山', materialQuality: '实木框架', filler: '其他', piece: '1件', technology: '其他', installationMethod: '组装',
-        style: '现代简约', category: '沙发', space: '客厅', term: '15天', service: '包送、包安装', price: 6770, sold: 340, heat: 510,
-        collect: '5人', inventory: 302, score: 2.7, image: '../../assets/images/sofa_1.jpg', creationTime: '2022-12-16'},
-        {productId: '123', name: '现代意式网红北欧客厅转角简约组合直排纳米科技布沙发现代小户型奢华', introduce: '介绍', identifier: 'J140-X04-109-2072#',
-        producer: '广东佛山', materialQuality: '实木框架', filler: '其他', piece: '1件', technology: '其他', installationMethod: '组装',
-        style: '现代简约', category: '沙发', space: '客厅', term: '15天', service: '包送、包安装', price: 6710, sold: 360, heat: 500,
-        collect: '5人', inventory: 301, score: 5.9, image: '../../images/sofa_1.jpg', creationTime: '2022-12-16'},
-        {productId: '123', name: '现代意式网红北欧客厅转角简约组合直排纳米科技布沙发现代小户型奢华', introduce: '介绍', identifier: 'J140-X04-109-2072#',
-        producer: '广东佛山', materialQuality: '实木框架', filler: '其他', piece: '1件', technology: '其他', installationMethod: '组装',
-        style: '现代简约', category: '沙发', space: '客厅', term: '15天', service: '包送、包安装', price: 6700, sold: 300, heat: 550,
-        collect: '5人', inventory: 307, score: 5.7, image: '../../images/sofa_1.jpg', creationTime: '2022-12-16'},
-      ],
+      productInfo: [],
       // 风格快捷选择
-      styleRes: [{ text: "轻奢主义", value: "轻奢主义" },{text: "现代简约",  value: "现代简约" },{ text: "自然北欧", value: "自然北欧" },{ text: "现代中式", value: "现代中式" },{ text: "精品实木", value: "精品实木" },{ text: "经典美式", value: "经典美式" },{ text: "奢华欧法", value: "奢华欧法" },{ text: "软装配饰", value: "软装配饰" },{ text: "佗寂风/中古风", value: "佗寂风/中古风" },{ text: "轻奢风", value: "轻奢风" }],
+      styleRes: [{ text: "轻奢主义", value: "轻奢主义" },{text: "现代极简",  value: "现代极简" },{ text: "自然北欧", value: "自然北欧" },{ text: "现代中式", value: "现代中式" },{ text: "精品实木", value: "精品实木" },{ text: "经典美式", value: "经典美式" },{ text: "奢华欧法", value: "奢华欧法" },{ text: "软装配饰", value: "软装配饰" },{ text: "佗寂风/中古风", value: "佗寂风/中古风" },{ text: "轻奢风", value: "轻奢风" }],
       // 品类快捷选择
       categoryRes: [{ text: "沙发", value: "沙发" },{ text: "茶几", value: "茶几" },{ text: "电视柜", value: "电视柜" },{ text: "鞋柜", value: "鞋柜" },{ text: "餐椅", value: "餐椅" },{ text: "餐边柜", value: "餐边柜" },{ text: "床", value: "床" },{ text: "床头柜", value: "床头柜" },{ text: "床垫", value: "床垫" },{ text: "餐桌", value: "餐桌" },{ text: "休闲椅", value: "休闲椅" }],
       // 空间快捷选择
@@ -196,9 +185,29 @@ export default {
 
     }
   },
+  async mounted () {
+    // 默认查询
+    let queryVO = {};
+    queryVO.filed = null;
+    queryVO.value = null;
+    queryVO.page = 1;
+    const res = await getProductRecord(queryVO);
+    if(res.code == 200) {
+      this.productInfo = res.data.productRecordBOS;
+      this.total = res.data.total;
+      this.page = res.data.page;
+    }
+
+  },
   methods: {
     // 查询
-    queryProduct() {
+    async queryProduct() {
+      var res;
+      // 默认查询
+      let queryVO = {};
+      queryVO.filed = null;
+      queryVO.value = null;
+      queryVO.page = 1;
       // 查询全部
       if(this.identifier == '' && this.name == '') {
         Message({
@@ -206,26 +215,34 @@ export default {
           type: 'info',
           duration: 2000
         });
-
-        return;
-      }
-      if(this.identifier != '') {
+        res = await getProductRecord(queryVO);
+      } else if(this.identifier != '') {
         Message({
           message: '当前为编号查询',
           type: 'info',
           duration: 2000
         });
-
-        return;
+        queryVO.filed = "identifier";
+        queryVO.value = this.identifier;
+        res = await getProductRecord(queryVO);
+      } else {
+        Message({
+          message: '当前为名称查询',
+          type: 'info',
+          duration: 2000
+        });
+        queryVO.filed = "name";
+        queryVO.value = this.name;
+        res = await getProductRecord(queryVO);
       }
-      Message({
-        message: '当前为名称查询',
-        type: 'info',
-        duration: 2000
-      });
+      if(res.code == 200) {
+        this.productInfo = res.data.productRecordBOS;
+        this.total = res.data.total;
+        this.page = res.data.page;
+      }
     },
     // 删除
-    deleteProduct() {
+    async deleteProduct() {
       if(this.productId.length == 0) {
         return Message({
           message: '未勾选产品',
@@ -233,16 +250,107 @@ export default {
           duration: 2000
         });
       }
-
-
+      const res = await delProductInfo(this.productId);
+      if(res.code == 200) {
+        Message({
+          message: '删除成功',
+          type: 'success',
+          duration: 2000
+        });
+        // 默认查询
+        let queryVO = {};
+        queryVO.filed = null;
+        queryVO.value = null;
+        queryVO.page = 1;
+        const res = await getProductRecord(queryVO);
+        if(res.code == 200) {
+          this.productInfo = res.data.productRecordBOS;
+          this.total = res.data.total;
+          this.page = res.data.page;
+        }
+      }
     },
     // 上一页
-    prevInfo(index) {
-      console.log(index);
+    async prevInfo(index) {
+      var res;
+      // 默认查询
+      let queryVO = {};
+      queryVO.filed = null;
+      queryVO.value = null;
+      queryVO.page = index;
+      // 查询全部
+      if(this.identifier == '' && this.name == '') {
+        Message({
+          message: '当前为查询全部',
+          type: 'info',
+          duration: 2000
+        });
+        res = await getProductRecord(queryVO);
+      } else if(this.identifier != '') {
+        Message({
+          message: '当前为编号查询',
+          type: 'info',
+          duration: 2000
+        });
+        queryVO.filed = "identifier";
+        queryVO.value = this.identifier;
+        res = await getProductRecord(queryVO);
+      } else {
+        Message({
+          message: '当前为名称查询',
+          type: 'info',
+          duration: 2000
+        });
+        queryVO.filed = "name";
+        queryVO.value = this.name;
+        res = await getProductRecord(queryVO);
+      }
+      if(res.code == 200) {
+        this.productInfo = res.data.productRecordBOS;
+        this.total = res.data.total;
+        this.page = res.data.page;
+      }
     },
     // 下一页
-    nextInfo(index) {
-      console.log(index);
+    async nextInfo(index) {
+      var res;
+      // 默认查询
+      let queryVO = {};
+      queryVO.filed = null;
+      queryVO.value = null;
+      queryVO.page = index;
+      // 查询全部
+      if(this.identifier == '' && this.name == '') {
+        Message({
+          message: '当前为查询全部',
+          type: 'info',
+          duration: 2000
+        });
+        res = await getProductRecord(queryVO);
+      } else if(this.identifier != '') {
+        Message({
+          message: '当前为编号查询',
+          type: 'info',
+          duration: 2000
+        });
+        queryVO.filed = "identifier";
+        queryVO.value = this.identifier;
+        res = await getProductRecord(queryVO);
+      } else {
+        Message({
+          message: '当前为名称查询',
+          type: 'info',
+          duration: 2000
+        });
+        queryVO.filed = "name";
+        queryVO.value = this.name;
+        res = await getProductRecord(queryVO);
+      }
+      if(res.code == 200) {
+        this.productInfo = res.data.productRecordBOS;
+        this.total = res.data.total;
+        this.page = res.data.page;
+      }
     },
     // 编辑
     updateProduct(index, productInfo) {

@@ -12,6 +12,7 @@ import com.summer.commonmodule.response.ResponseEnum;
 import com.summer.commonmodule.service.PhoneCodeService;
 import com.summer.commonmodule.utils.EncryptionUtil;
 import com.summer.commonmodule.utils.RedisUtil;
+import com.summer.securitymodule.common.WeChatUtil;
 import com.summer.securitymodule.entity.vo.PhoneCodeVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private PhoneCodeService phoneCodeService;
+
+    @Autowired
+    private WeChatUtil weChatUtil;
 
     @Autowired
     private RedisUtil redisUtil;
@@ -181,8 +185,37 @@ public class UserServiceImpl implements UserService {
         UserVO userVO = new UserVO();
         userVO.setNickname(customer.getNickname())
                 .setPhone(customer.getPhone())
-                .setPicture(customer.getPicture());
+                .setPicture(customer.getPicture())
+                .setBindWeChat(Objects.nonNull(customer.getOpenId()) && !CharSequenceUtil.isBlank(customer.getOpenId()));
 
         return userVO;
+    }
+
+    @Override
+    public void bindWeChat(String token, String code) {
+        if (CharSequenceUtil.isBlank(token) || CharSequenceUtil.isBlank(code)) {
+            RecordLoggerThrowException.record(ResponseEnum.HTTP_MESSAGE_NOT_READABLE, logger);
+        }
+
+        // 获取OpenID
+        String openId = weChatUtil.getWxOpenId(code);
+        // 获取Token中的数据
+        TokenInfoBO tokenInfoBO = (TokenInfoBO) redisUtil.get(encryptionUtil.publicKeyDecryption(token));
+        // 查询顾客信息
+        Customer customer = customerMapper.queryCustomerById(tokenInfoBO.getUserInfoTokenBO().getUserId());
+        if (Objects.isNull(customer)) {
+            RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, logger);
+        }
+        // 是否已绑定
+        if (!CharSequenceUtil.isBlank(customer.getOpenId())) {
+            RecordLoggerThrowException.record(ResponseEnum.SHOW_FAIL, "已被其他微信绑定", logger);
+        }
+
+        customer.setOpenId(openId);
+        Customer saveCustomer = customerMapper.saveCustomer(customer);
+        if (Objects.isNull(saveCustomer)) {
+            RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, "数据库存储失败", logger);
+        }
+
     }
 }

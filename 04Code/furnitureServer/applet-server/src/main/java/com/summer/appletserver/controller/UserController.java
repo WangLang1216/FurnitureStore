@@ -93,4 +93,12 @@ public class UserController {
         return ResponseEntity.success(userInfo);
     }
 
+    @GetMapping("/bind/we-chat")
+    public ResponseEntity<Void> bindWeChat(HttpServletRequest request, @RequestParam String code) {
+        String token = request.getHeader("Authorization");
+        userService.bindWeChat(token, code);
+
+        return ResponseEntity.success();
+    }
+
 }
