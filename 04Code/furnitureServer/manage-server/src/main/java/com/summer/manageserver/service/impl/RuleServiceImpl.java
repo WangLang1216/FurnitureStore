@@ -29,7 +29,7 @@ public class RuleServiceImpl implements RuleService {
     /**
      * 最短过期时间
      */
-    private static final Integer SHORT_EXPIRE_TIME = 600;
+    private static final Integer SHORT_EXPIRE_TIME = 5;
 
     /**
      * Token存储KEY

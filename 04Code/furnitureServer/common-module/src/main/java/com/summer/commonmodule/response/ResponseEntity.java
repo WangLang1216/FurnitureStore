@@ -68,6 +68,20 @@ public class ResponseEntity<T> implements Serializable {
         return responseEntity;
     }
 
+    /**
+     * 前端显示失败消息
+     * @param code 错误码
+     * @param msg 失败消息
+     * @return
+     */
+    public static <T> ResponseEntity<T> showFailMsg(Integer code, String msg) {
+        logger.error(msg);
+        ResponseEntity<T> responseEntity = new ResponseEntity<>();
+        responseEntity.setMsg(msg);
+        responseEntity.setCode(code);
+        return responseEntity;
+    }
+
     public static <T> ResponseEntity<T> fail(ResponseEnum responseEnum) {
         logger.error(responseEnum.toString());
         ResponseEntity<T> responseEntity = new ResponseEntity<>();
@@ -93,4 +107,11 @@ public class ResponseEntity<T> implements Serializable {
         return responseEntity;
     }
 
+    public ResponseEntity() {
+    }
+
+    public ResponseEntity(Integer code, String msg) {
+        this.code = code;
+        this.msg = msg;
+    }
 }

@@ -61,6 +61,11 @@ public class ProductInfoServiceImpl implements ProductInfoService {
     private MinioUtil minioUtil;
 
     /**
+     * minio地址
+     */
+    @Value("${minio.endpoint}")
+    private String minioUrl;
+    /**
      * 桶名
      */
     @Value("${minio.bucketName}")
@@ -306,9 +311,11 @@ public class ProductInfoServiceImpl implements ProductInfoService {
 
         List<Map<String, String>> upload = minioUtil.upload(images, bucketName);
         for (Map<String, String> map : upload) {
-            String fileUrl = minioUtil.getPreviewFileUrl(map.get("fileName"), bucketName);
+            // 这是临时路径，暂不使用
+//            String fileUrl = minioUtil.getPreviewFileUrl(map.get("fileName"), bucketName);
             Image image = new Image();
-            image.setImage(fileUrl)
+            // 采用绝对路径
+            image.setImage(minioUrl + StrPool.SLASH + map.get("filePath"))
                     .setImagePath(map.get("filePath"));
             imageList.add(image);
         }

@@ -242,7 +242,7 @@
 
 <script>
     import { getProductInfo, getProductSpecs, updateProductHeat } from '@/api/browseData.js';
-    import { addShopping, getUserCollectSate, updateUserCollectSate, addLikeWeight } from '@/api/user.js';
+    import { addLikeWeight, addShopping, getUserCollectSate, updateUserCollectSate } from '@/api/user.js';
 
     import recommend from '../recommend/recommend.vue';
     export default {
@@ -408,7 +408,7 @@
                         this.collectState = res.data;
                     }
                 });
-								addLikeWeight(this.productId);
+                addLikeWeight(this.productId);
             } else {
                 this.collectState = false;
             }

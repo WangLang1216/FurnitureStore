@@ -241,7 +241,7 @@ export default {
       formData.append('size', this.product.size);
       formData.append('colour', this.product.colour);
       formData.append('materialType', this.product.materialType);
-      formData.append('opt', this.productId === '' ? true : false);
+      formData.append('opt', typeof this.productId == 'undefined' ? true : false);
 
       const res = await addProductInfo(formData);
       if(res.code == 200) {

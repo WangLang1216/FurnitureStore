@@ -127,7 +127,7 @@ public class ProductInfoController {
      * 删除产品信息
      * @param productId 产品ID集合
      */
-    @DeleteMapping("/product")
+    @PostMapping("/product/del")
     public ResponseEntity<Void> delProductInfo(@RequestBody List<String> productId) {
         productInfoService.delProductInfo(productId);
 

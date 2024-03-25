@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = BusinessException.class)
     public ResponseEntity<String> businessExceptionHandler(HttpServletRequest request, BusinessException e) {
         logger.error("A business exception occurred, error reason:{}", e.getErrMsg());
-        return ResponseEntity.showFailMsg(e.getErrMsg());
+        return ResponseEntity.showFailMsg(e.getErrCode(), e.getErrMsg());
     }
 
     /**

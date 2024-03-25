@@ -3,11 +3,13 @@ package com.summer.securitymodule.filter;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.AntPathMatcher;
 import cn.hutool.core.text.CharSequenceUtil;
+import com.summer.commonmodule.exception.BusinessException;
 import com.summer.commonmodule.response.ResponseEntity;
 import com.summer.commonmodule.response.ResponseEnum;
 import com.summer.securitymodule.adapter.AuthConfigAdapter;
 import com.summer.securitymodule.handler.HttpHandler;
 import com.summer.securitymodule.service.TokenInfoService;
+import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
@@ -40,9 +42,8 @@ public class AuthFilter implements Filter {
 		HttpServletRequest request = (HttpServletRequest) servletRequest;
 		HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-		if (HttpMethod.OPTIONS.toString().equals(request.getMethod())) {
-			chain.doFilter(request, response);
-		}
+		// 处理跨域
+		dealCors(request, response);
 
 		// 不需要授权路径
 		List<String> excludePathPatterns = authConfigAdapter.excludePathPatterns();
@@ -76,6 +77,25 @@ public class AuthFilter implements Filter {
 		// TODO 校验权限
 
 		chain.doFilter(request, response);
+	}
+
+	// 处理跨域
+	private void dealCors(HttpServletRequest request, HttpServletResponse response){
+		if(StringUtil.isNullOrEmpty(request.getHeader("Origin"))){
+			response.setHeader("Access-Control-Allow-Origin", "*");
+		}else{
+			response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+		}
+		response.setHeader("Access-Control-Allow-Headers", "*");
+		response.setHeader("Access-Control-Expose-Headers", "*");
+		response.setHeader("Access-Control-Allow-Methods", "*");
+		response.setHeader("Access-Control-Max-Age", "3600");
+		response.setHeader("Access-Control-Allow-Credentials", "true");
+
+		if ("OPTIONS".equals(request.getMethod())) {
+			response.setStatus(HttpServletResponse.SC_OK);
+			return;
+		}
 	}
 
 }

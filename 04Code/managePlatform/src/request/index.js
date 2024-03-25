@@ -1,12 +1,12 @@
 import axios from 'axios';
 import { Message } from 'element-ui';
-import router from "../router/index";
-import { refreshToken } from './api';
+import router from "../router";
 
+const BASE_URL = 'http://127.0.0.1:8083/api/v1';
 
 const request = axios.create({
-  baseURL: 'http://127.0.0.1:8083/api/v1',
-  timeout: 10000
+  baseURL: BASE_URL,
+  timeout: 1000000
 })
 
 // 请求拦截器
@@ -14,7 +14,7 @@ request.interceptors.request.use(
   config => {
     const token = localStorage.getItem('accessToken');
     if (token) config.headers.Authorization =  token;
-    config.headers['Access-Control-Allow-Origin'] = "*";
+    // config.headers['Access-Control-Allow-Origin'] = "*";
     return config;
 }, error => {
   Promise.reject(error)
@@ -24,38 +24,39 @@ request.interceptors.request.use(
 let isNotRefreshing = true;
 //请求队列
 let requests = [];
+
 // 响应拦截
 request.interceptors.response.use(
-  response => {
+  async response => {
+    const config = response.config;
     if (response.data.code === 200) {
       return response;
     } else if (response.data.code === 400) {
-      console.log("123");
-      if (isNotRefreshing) {
-        isNotRefreshing = false;
-        return refreshToken({refreshToken: localStorage.getItem("refreshToken")}).then(res => {
-          if(res.data.code === 200) {
-            localStorage.clear();
-            localStorage.setItem("accessToken", res.data.accessToken);
-            localStorage.setItem("refreshToken", res.data.refreshToken);
-            //执行requests队列中的请求，（requests中存的不是请求参数，而是请求的Promise函数，这里直接拿来执行就好）
-            requests.forEach(run => run())
-            //将请求队列置空
-            requests = []
-            //重新执行当前未执行成功的请求并返回
-            return axios(config);
-          }
-          console.log("刷新失败");
-          router.replace({name: 'login'});
-        })
+      const res = await axios({
+        url: BASE_URL + '/ua/token/refresh',
+        method: 'post',
+        data: {
+          refreshToken: localStorage.getItem("refreshToken")
+        }
+      })
+      if(res.data.code == 200) {
+        localStorage.setItem("accessToken", res.data.data.accessToken);
+        localStorage.setItem("refreshToken", res.data.data.refreshToken);
+        // 修改config.headers.Authorization
+        config.headers.Authorization = res.data.data.accessToken;
+        // 请求
+        requests.forEach(run => run());
+        //将请求队列置空
+        requests = [];
+        //重新执行当前未执行成功的请求并返回
+        return axios(config);
       } else {
-        return new Promise(resolve => {
-          //这里加入的是一个promise的解析函数，将响应的config配置对应解析的请求函数存到requests中，等到刷新token回调后再执行
-          requests.push(() => {
-              resolve(axios(config));
-              router.replace({name: 'login'});
-          })
-        })
+        Message({
+          message: '请重新登录',
+          type: 'error',
+          duration: 2000
+        });
+        router.replace({name: 'login'});
       }
     } else {
       return Message({
@@ -92,6 +93,7 @@ request.interceptors.response.use(
     return Promise.resolve(error.response);
   }
 )
+
 
 /**
  * get方法，对应get请求

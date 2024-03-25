@@ -207,19 +207,23 @@
                 uni.login({
                     provider: 'weixin',
                     success: (resLogin) => {
-                        bindWeChat(resLogin.code).then((res) => {
-                            if (res.code === 200) {
-                                // 查询用户信息
-                                getUserInfo().then((res) => {
-                                    this.userInfo = res.data;
-                                });
-                            } else {
+                        uni.showLoading({
+                            title: '加载中',
+                        });
+                        bindWeChat(resLogin.code).then((resBind) => {
+                            console.log(resBind);
+                            if (resBind.code != 200) {
                                 uni.showToast({
                                     icon: 'error',
-                                    title: res.msg,
+                                    title: '请求失败，请重试！',
                                     duration: 3000,
                                 });
+                                return uni.hideToast();
                             }
+                            // 查询用户信息
+                            getUserInfo().then((res) => {
+                                this.userInfo = res.data;
+                            });
                         });
                     },
                 });

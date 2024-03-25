@@ -1,6 +1,7 @@
 package com.summer.commonmodule.utils;
 
 import cn.hutool.core.io.FastByteArrayOutputStream;
+import cn.hutool.core.text.StrPool;
 import io.minio.*;
 import io.minio.http.Method;
 import io.minio.messages.Item;
@@ -80,7 +81,7 @@ public class MinioUtil {
      * @return FilePath
      */
     public String createFilePath(String fileName) {
-        return bucketName + "/" + fileName;
+        return fileName;
     }
 
     /**
@@ -178,7 +179,7 @@ public class MinioUtil {
             String filePath = createFilePath(fileName);
             Map<String, String> map = new HashMap<>();
             map.put("fileName", fileName);
-            map.put("filePath", filePath);
+            map.put("filePath", bucketName + StrPool.SLASH + filePath);
             filePaths.add(map);
             System.out.println(fileName + "的文件路径为：" + filePath);
             minioClient.putObject(PutObjectArgs.builder()

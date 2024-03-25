@@ -3,10 +3,7 @@ package com.summer.securitymodule.controller;
 import com.summer.commonmodule.response.ResponseEntity;
 import com.summer.securitymodule.entity.vo.TokenInfoVO;
 import com.summer.securitymodule.service.TokenInfoService;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotBlank;
@@ -24,7 +21,7 @@ public class TokenController {
     private TokenInfoService tokenInfoService;
 
     @PostMapping("/ua/token/refresh")
-    public ResponseEntity<TokenInfoVO> refreshToken(@NotBlank String refreshToken) {
+    public ResponseEntity<TokenInfoVO> refreshToken(@RequestBody String refreshToken) {
         TokenInfoVO tokenInfoVO = tokenInfoService.refreshToken(refreshToken);
         return ResponseEntity.success(tokenInfoVO);
     }

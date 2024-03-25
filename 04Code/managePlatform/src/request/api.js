@@ -31,7 +31,7 @@ export const addProductInfo = p => post("/product", p);
 export const getProductRecord = p => post("/product-record", p);
 
 // 删除产品信息
-export const delProductInfo = p => DeleteBody("/product", p);
+export const delProductInfo = p => post("/product/del", p);
 
 // 根据ID查询产品信息
 export const getProductById = p => getDynamicynamic("/product", p);

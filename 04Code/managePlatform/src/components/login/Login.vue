@@ -105,6 +105,8 @@ export default {
         }
       }
       store.commit('setToken', res.data);
+      localStorage.setItem('accessToken', res.data.accessToken);
+      localStorage.setItem('refreshToken', res.data.refreshToken);
       this.$router.push({name: 'home'});
     }
   },

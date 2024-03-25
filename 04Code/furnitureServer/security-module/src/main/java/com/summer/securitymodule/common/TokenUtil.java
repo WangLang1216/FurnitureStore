@@ -32,8 +32,8 @@ public class TokenUtil {
     /**
      * 默认请求Token和刷新Token过期时间
      */
-    private static final Integer ACCESS_EXPIRES_IN = 3600;
-    private static final Integer REFRESH_EXPIRES_IN = 7200;
+    private static final Integer ACCESS_EXPIRES_IN = 30 * 60;
+    private static final Integer REFRESH_EXPIRES_IN = 24 * 60 * 60;
 
     /**
      * Token存储KEY

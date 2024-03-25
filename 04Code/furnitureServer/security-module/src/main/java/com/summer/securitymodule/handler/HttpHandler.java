@@ -16,6 +16,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Objects;
 
 /**
  * 前端错误展示
@@ -30,25 +31,25 @@ public class HttpHandler {
 	private ObjectMapper objectMapper;
 
 	public <T> void printServerResponseToWeb(ResponseEntity<T> responseEntity) {
-		if (responseEntity == null) {
+		if (Objects.isNull(responseEntity)) {
 			logger.info("print obj is null");
 			return;
 		}
 		ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder
 				.getRequestAttributes();
-		if (requestAttributes == null) {
+		if (Objects.isNull(requestAttributes)) {
 			logger.error("requestAttributes is null, can not print to web");
 			return;
 		}
 		HttpServletResponse response = requestAttributes.getResponse();
-		if (response == null) {
+		if (Objects.isNull(response)) {
 			logger.error("httpServletResponse is null, can not print to web");
 			throw new BusinessException(ResponseEnum.UNAUTHORIZED);
 		}
 		logger.error("response error:{}", responseEntity.getMsg());
 		response.setCharacterEncoding(CharsetUtil.UTF_8);
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-		PrintWriter printWriter = null;
+		PrintWriter printWriter;
 		try {
 			printWriter = response.getWriter();
 			printWriter.write(objectMapper.writeValueAsString(responseEntity));

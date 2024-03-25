@@ -99,8 +99,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         for (OrderUserDTO dto : orderUserDTOS) {
             OrderInfoBO orderInfoBO = new OrderInfoBO();
             BeanUtil.copyProperties(dto, orderInfoBO);
-            orderInfoBO.setNickname(dto.getCustomer().getNickname())
-                    .setPhone(dto.getCustomer().getPhone());
+            orderInfoBO.setNickname(Objects.isNull(dto.getCustomer()) ? "-1" : dto.getCustomer().getNickname())
+                    .setPhone(Objects.isNull(dto.getCustomer()) ? "-1" : dto.getCustomer().getPhone());
             orderInfoBOS.add(orderInfoBO);
         }
 

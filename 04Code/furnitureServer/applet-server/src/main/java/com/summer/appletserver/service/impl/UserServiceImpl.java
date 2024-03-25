@@ -206,8 +206,8 @@ public class UserServiceImpl implements UserService {
         if (Objects.isNull(customer)) {
             RecordLoggerThrowException.record(ResponseEnum.INTERNAL_SERVER_ERROR, logger);
         }
-        // 是否已绑定
-        if (!CharSequenceUtil.isBlank(customer.getOpenId())) {
+        // 通过OpenID查询
+        if (Objects.nonNull(customerMapper.queryCustomerByOpenId(openId))) {
             RecordLoggerThrowException.record(ResponseEnum.SHOW_FAIL, "已被其他微信绑定", logger);
         }
 

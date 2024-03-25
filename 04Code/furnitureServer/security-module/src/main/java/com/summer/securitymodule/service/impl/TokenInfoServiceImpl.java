@@ -1,6 +1,7 @@
 package com.summer.securitymodule.service.impl;
 
 import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.StrUtil;
 import com.summer.commonmodule.entity.bo.TokenInfoBO;
 import com.summer.commonmodule.entity.bo.UserInfoTokenBO;
 import com.summer.commonmodule.exception.RecordLoggerThrowException;
@@ -98,6 +99,8 @@ public class TokenInfoServiceImpl implements TokenInfoService {
         if (CharSequenceUtil.isBlank(refreshToken)) {
             RecordLoggerThrowException.record(ResponseEnum.UNAUTHORIZED, logger);
         }
+        // 切割
+        refreshToken = refreshToken.substring(16, refreshToken.lastIndexOf("\""));
 
         // 校验Token
         boolean verifyToken = tokenUtil.verifyToken(refreshToken);
