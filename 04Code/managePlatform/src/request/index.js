@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Message } from 'element-ui';
 import router from "../router";
 
-const BASE_URL = 'http://8.137.88.207:8082/api/v1';
+const BASE_URL = 'http://xiaopengyou.love:8082/api/v1';
 
 const request = axios.create({
   baseURL: BASE_URL,
@@ -20,8 +20,6 @@ request.interceptors.request.use(
   Promise.reject(error)
 })
 
-//标志当前是否正在刷洗token
-let isNotRefreshing = true;
 //请求队列
 let requests = [];
 

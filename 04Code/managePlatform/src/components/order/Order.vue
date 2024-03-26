@@ -250,12 +250,40 @@ export default {
       }
     },
     // 上一页
-    prevInfo(index) {
-      console.log(index);
+    async prevInfo(index) {
+      // 默认查询
+      let queryVO = {};
+      queryVO.filed = null;
+      queryVO.value = null;
+      queryVO.page = index;
+      if(this.orderId != '') {
+        queryVO.filed = "_id";
+        queryVO.value = this.orderId;
+      }
+      const res = await getOrderInfo(queryVO);
+      if(res.code == 200) {
+        this.orderInfo = res.data.orderInfoBOS;
+        this.total = res.data.total;
+        this.page = res.data.page;
+      }
     },
     // 下一页
-    nextInfo(index) {
-      console.log(index);
+    async nextInfo(index) {
+      // 默认查询
+      let queryVO = {};
+      queryVO.filed = null;
+      queryVO.value = null;
+      queryVO.page = index;
+      if(this.orderId != '') {
+        queryVO.filed = "_id";
+        queryVO.value = this.orderId;
+      }
+      const res = await getOrderInfo(queryVO);
+      if(res.code == 200) {
+        this.orderInfo = res.data.orderInfoBOS;
+        this.total = res.data.total;
+        this.page = res.data.page;
+      }
     },
     // 多选
     handleSelectionChange(val) {
