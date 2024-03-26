@@ -47,7 +47,6 @@ export default {
 <style scoped>
   .head {
     width: 100%;
-    height: 100px;
     background: #ffffff;
     display: flex;
   }

@@ -49,23 +49,27 @@ export default {
   methods: {
     // 获取验证码
     async getPhoneCode() {
-      if(this.phone == '') {
-        return Message({
-          message: '请输入手机号',
+      // if(this.phone == '') {
+      //   return Message({
+      //     message: '请输入手机号',
+      //     type: 'warning',
+      //     duration: 2000
+      //   });
+      // }
+      return Message({
+          message: '暂不开放，谢谢',
           type: 'warning',
           duration: 2000
         });
-      }
-      console.log("123");
-      const res = await sendSmsCode(this.phone);
-      if(res.code !== 200) {
-        return Message({
-          message: res.msg,
-          type: 'error',
-          duration: 2000
-        });
-      }
-      this.codeText = '获取成功';
+      // const res = await sendSmsCode(this.phone);
+      // if(res.code !== 200) {
+      //   return Message({
+      //     message: res.msg,
+      //     type: 'error',
+      //     duration: 2000
+      //   });
+      // }
+      // this.codeText = '获取成功';
     },
     // 登录
     async login() {

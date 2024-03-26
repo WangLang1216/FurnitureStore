@@ -2,11 +2,11 @@ import axios from 'axios';
 import { Message } from 'element-ui';
 import router from "../router";
 
-const BASE_URL = 'http://127.0.0.1:8083/api/v1';
+const BASE_URL = 'http://8.137.88.207:8082/api/v1';
 
 const request = axios.create({
   baseURL: BASE_URL,
-  timeout: 1000000
+  timeout: 10000
 })
 
 // 请求拦截器

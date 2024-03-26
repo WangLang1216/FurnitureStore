@@ -1,5 +1,5 @@
 // 全局请求封装
-const base_url = 'http://localhost:8081/api/v1'
+const base_url = 'http://8.137.88.207:8081/api/v1'
 // 需要修改token，和根据实际修改请求头
 export default (params) => {
 	let url = params.url;

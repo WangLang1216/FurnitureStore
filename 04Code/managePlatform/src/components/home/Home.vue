@@ -43,6 +43,7 @@ export default {
     background: red;
   }
   .el-header {
+    width: 100%;
     background-color: #B3C0D1;
     color: #333;
     line-height: 60px;
@@ -54,6 +55,7 @@ export default {
   }
   
   .el-main {
+    width: 100%;
     background-color: #E9EEF3;
     color: #333;
   }

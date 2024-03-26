@@ -34,7 +34,6 @@
 
             // 注册/登录
             login() {
-                console.log('进入了');
                 uni.showModal({
                     mask: true,
                     title: '温馨提示',
